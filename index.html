@@ -157,9 +157,14 @@ a{color:inherit;text-decoration:none}
 
 /* ---------- PROFILE ---------- */
 #viewProfile{max-width:760px;margin:0 auto;padding:22px 20px;display:flex;flex-direction:column;gap:18px}
-.profile-cover{height:160px;background:linear-gradient(120deg,var(--accent),var(--accent-2),var(--pop));border-radius:var(--radius) var(--radius) 0 0}
+.profile-cover{position:relative;height:180px;background:linear-gradient(120deg,var(--accent),var(--accent-2),var(--pop));background-size:cover;background-position:center;border-radius:var(--radius) var(--radius) 0 0}
+.cover-btn{position:absolute;right:14px;bottom:14px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.25);padding:8px 13px;border-radius:10px;font-size:13px;font-weight:700;backdrop-filter:blur(4px);transition:.15s}
+.cover-btn:hover{background:rgba(0,0,0,.75)}
 .profile-head{margin-top:-52px;padding:0 22px 18px;display:flex;align-items:flex-end;gap:16px}
-.profile-head .pav{width:104px;height:104px;border-radius:50%;border:4px solid var(--card);object-fit:cover;background:var(--card)}
+.pav-wrap{position:relative;flex-shrink:0}
+.profile-head .pav{width:104px;height:104px;border-radius:50%;border:4px solid var(--card);object-fit:cover;background:var(--card);display:block}
+.pav-cam{position:absolute;right:2px;bottom:2px;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#0d0f1a;font-size:16px;display:grid;place-items:center;border:3px solid var(--card);box-shadow:0 4px 12px rgba(0,0,0,.4);transition:.15s}
+.pav-cam:hover{filter:brightness(1.1)}
 .profile-head .pinfo{flex:1;padding-bottom:6px}
 .profile-head .pname{font-family:"Bricolage Grotesque";font-size:24px;font-weight:800}
 .profile-head .pstats{font-size:13px;color:var(--txt-dim);margin-top:3px}
@@ -193,12 +198,32 @@ a{color:inherit;text-decoration:none}
 .sv-nav div{flex:1}
 .sv-close{position:absolute;top:20px;right:16px;z-index:4;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;font-size:18px}
 
+/* ---------- TOAST ---------- */
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:120;
+  background:var(--card-2);border:1px solid var(--line);color:var(--txt);
+  padding:12px 18px;border-radius:13px;font-size:14px;font-weight:600;box-shadow:var(--shadow);
+  opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 @media(max-width:880px){
-  .shell{grid-template-columns:1fr;gap:18px}
+  .shell{grid-template-columns:1fr;gap:16px;padding:16px 12px}
   .col-right{position:static}
-  .chat-card{height:auto}.chat-body{max-height:420px}
+  .chat-card{height:auto;max-height:none}.chat-body{max-height:50vh}
   .nav a{padding:8px 10px;font-size:13px}
+  .topbar{padding:10px 12px;gap:4px}
+  .topbar .logo{font-size:19px}
+  .topbar .me{gap:7px}
   .topbar .me .nm{display:none}
+  .nav{margin-left:8px}
+  /* font 16px để iPhone KHÔNG tự zoom khi gõ (đây là lý do chat hay bị kẹt) */
+  input,textarea{font-size:16px !important}
+  .chat-foot input{padding:12px 14px}
+  .chat-foot button{width:50px}
+  .act{padding:9px 14px}
+  #viewProfile{padding:16px 12px}
+  .profile-head{padding:0 16px 16px;gap:12px}
+  .profile-head .pav{width:88px;height:88px}
+  .sv-box{width:100vw;height:100dvh;border-radius:0}
 }
 </style>
 </head>
@@ -277,9 +302,14 @@ a{color:inherit;text-decoration:none}
   <!-- ===== VIEW: PROFILE (TRANG CÁ NHÂN) ===== -->
   <div id="viewProfile" class="hidden">
     <div class="card">
-      <div class="profile-cover"></div>
+      <div class="profile-cover" id="pCover">
+        <button class="cover-btn hidden" id="pCoverBtn" onclick="pickMedia('image','cover')">📷 Đổi ảnh bìa</button>
+      </div>
       <div class="profile-head">
-        <img class="pav" id="pAvatar" alt="">
+        <div class="pav-wrap">
+          <img class="pav" id="pAvatar" alt="">
+          <button class="pav-cam hidden" id="pAvatarBtn" onclick="pickMedia('image','avatar')" title="Đổi ảnh đại diện">📷</button>
+        </div>
         <div class="pinfo">
           <div class="pname" id="pName"></div>
           <div class="pstats" id="pStats"></div>
@@ -314,6 +344,8 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
+<div id="toast"></div>
+
 <script>
 /* ============================================================
    1) CẤU HÌNH
@@ -346,6 +378,7 @@ let allStories = [];
 let pendingMedia = null;
 let currentView = 'home';
 let currentProfileId = null;
+let userCache = {}; // {id:{name,avatar}} — luôn lấy avatar/tên mới nhất
 
 const $ = (id)=>document.getElementById(id);
 const esc = (s)=>String(s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -354,6 +387,35 @@ const timeAgo = (t)=>{
   if(s<60)return"vừa xong"; if(s<3600)return Math.floor(s/60)+" phút";
   if(s<86400)return Math.floor(s/3600)+" giờ"; return new Date(t).toLocaleDateString('vi-VN');
 };
+// Lấy avatar/tên mới nhất từ cache, fallback về giá trị lưu trong bài
+const avatarOf=(id,fb)=> (userCache[id]&&userCache[id].avatar) || fb || '';
+const nameOf  =(id,fb)=> (userCache[id]&&userCache[id].name)   || fb || 'Người dùng';
+
+// Thông báo nổi
+let _toastTimer=null;
+function toast(msg,ms=2200){
+  const t=$('toast'); if(!t)return;
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>t.classList.remove('show'),ms);
+}
+
+// Lắng nghe danh bạ user → cập nhật avatar/tên realtime ở mọi nơi
+function listenUsers(){
+  db.ref('users').on('value',snap=>{
+    userCache={};
+    snap.forEach(c=>{ const v=c.val(); userCache[c.key]={name:v.name,avatar:v.avatar}; });
+    if(me && userCache[me.id]){
+      me.avatar=userCache[me.id].avatar||me.avatar;
+      $('meAvatar').src=me.avatar; $('compAvatar').src=me.avatar;
+    }
+    // vẽ lại cho avatar mới xuất hiện
+    if(currentView==='home') renderFeed($('feed'),allPosts.slice(0,80));
+    if(currentView==='profile') renderProfile(currentProfileId);
+    renderStories();
+    rerenderChat();
+  });
+}
 
 /* ============================================================
    3) ĐĂNG NHẬP QUA TOKEN
@@ -368,10 +430,9 @@ async function boot(){
       if(snap.exists()){
         const data=snap.val();
         if(data.createdAt && Date.now()-data.createdAt>10*60*1000){ return fail("Link đã hết hạn. Gõ lại lệnh trong Discord nhé."); }
-        me={id:data.discordId,name:data.username,avatar:data.avatar};
+        me={id:data.discordId,name:data.username,avatar:data.avatar,discordAvatar:data.avatar};
         localStorage.setItem('tobi_me',JSON.stringify(me));
         db.ref('loginTokens/'+token).remove().catch(()=>{});
-        db.ref('users/'+me.id).update({name:me.name,avatar:me.avatar,lastSeen:Date.now()});
         history.replaceState({},"",location.pathname);
         return enterApp();
       }
@@ -385,14 +446,26 @@ async function boot(){
 function fail(msg){ $('loginSpinner').classList.add('hidden'); $('loginStatus').innerHTML=msg; }
 function logout(){ localStorage.removeItem('tobi_me'); location.href=location.pathname; }
 
-function enterApp(){
+async function enterApp(){
   $('login').classList.add('hidden');
   $('app').classList.remove('hidden');
+  if(!me.discordAvatar) me.discordAvatar=me.avatar;
+
+  // Tải hồ sơ đã lưu: nếu có avatar tuỳ chỉnh thì dùng nó
+  let prof={};
+  try{ const s=await db.ref('users/'+me.id).get(); if(s.exists())prof=s.val(); }catch{}
+  me.avatar=prof.avatar||me.discordAvatar; // avatar tuỳ chỉnh thắng
+
+  // Cập nhật hồ sơ: tên + lastSeen luôn; avatar chỉ set lần đầu (chưa có)
+  const upd={name:me.name,lastSeen:Date.now()};
+  if(!prof.avatar) upd.avatar=me.avatar;
+  db.ref('users/'+me.id).update(upd);
+  localStorage.setItem('tobi_me',JSON.stringify(me));
+
   $('meName').textContent=me.name;
   $('meAvatar').src=me.avatar;
   $('compAvatar').src=me.avatar;
-  // cập nhật avatar/tên mới nhất cho hồ sơ
-  db.ref('users/'+me.id).update({name:me.name,avatar:me.avatar,lastSeen:Date.now()});
+  listenUsers();
   listenFeed();
   listenStories();
   listenChat();
@@ -430,17 +503,27 @@ function pickMedia(type,target){
   const input=document.createElement('input');
   input.type='file';
   input.accept=type==='video'?'video/*':'image/*';
+  // QUAN TRỌNG: phải gắn vào trang thì mobile (iPhone/Android) mới fire onchange
+  input.style.position='fixed'; input.style.left='-9999px';
+  document.body.appendChild(input);
   input.onchange=async()=>{
-    const file=input.files[0]; if(!file)return;
+    const file=input.files[0];
+    input.remove();
+    if(!file)return;
     const res=await uploadToCloudinary(file,type);
     if(res && target==='post'){ pendingMedia={url:res,type}; renderPreview(); }
-    if(res && target==='story'){ await createStory(res,type); }
+    if(res && target==='story'){ await createStory(res,type); toast('✅ Đã đăng tin!'); }
+    if(res && target==='avatar'){ await saveAvatar(res); toast('✅ Đã đổi ảnh đại diện!'); }
+    if(res && target==='cover'){ await saveCover(res); toast('✅ Đã đổi ảnh bìa!'); }
   };
   input.click();
 }
 async function uploadToCloudinary(file,type){
-  $('upbar').classList.remove('hidden');
-  $('upbar').textContent="⏳ Đang tải lên…";
+  if(CLOUDINARY_CLOUD.startsWith('ĐIỀN') || CLOUDINARY_PRESET.startsWith('ĐIỀN')){
+    toast('⚠️ Chưa cấu hình Cloudinary nên không up ảnh/video được!',4000);
+    return null;
+  }
+  toast('⏳ Đang tải lên…',60000);
   $('btnPost').disabled=true;
   try{
     const fd=new FormData();
@@ -448,11 +531,11 @@ async function uploadToCloudinary(file,type){
     const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`,{method:'POST',body:fd});
     const data=await res.json();
     if(!data.secure_url)throw new Error(data.error?.message||'fail');
-    $('upbar').textContent="✅ Tải lên xong!";
+    toast('✅ Tải lên xong!');
     return data.secure_url;
   }catch(e){
     console.error(e);
-    $('upbar').textContent="❌ Tải lên thất bại. Kiểm tra Cloud name & upload preset (Unsigned).";
+    toast('❌ Tải lên thất bại. Kiểm tra Cloud name & upload preset (Unsigned).',4000);
     return null;
   }finally{ $('btnPost').disabled=false; }
 }
@@ -498,9 +581,9 @@ function postHTML(p){
   return `
   <div class="post" data-id="${p.id}">
     <div class="post-head">
-      <img src="${esc(p.authorAvatar)}" onclick="goProfile('${p.authorId}')">
+      <img src="${esc(avatarOf(p.authorId,p.authorAvatar))}" onclick="goProfile('${p.authorId}')">
       <div>
-        <div class="nm" onclick="goProfile('${p.authorId}')">${esc(p.authorName)}</div>
+        <div class="nm" onclick="goProfile('${p.authorId}')">${esc(nameOf(p.authorId,p.authorName))}</div>
         <div class="tm">${timeAgo(p.createdAt)}</div>
       </div>
     </div>
@@ -546,8 +629,8 @@ function listenComments(postId){
     const arr=[]; snap.forEach(c=>arr.push(c.val()));
     box.innerHTML=arr.map(c=>`
       <div class="cmt">
-        <img src="${esc(c.authorAvatar)}" onclick="goProfile('${c.authorId}')">
-        <div class="bub"><div class="cn" onclick="goProfile('${c.authorId}')">${esc(c.authorName)}</div>${esc(c.text)}</div>
+        <img src="${esc(avatarOf(c.authorId,c.authorAvatar))}" onclick="goProfile('${c.authorId}')">
+        <div class="bub"><div class="cn" onclick="goProfile('${c.authorId}')">${esc(nameOf(c.authorId,c.authorName))}</div>${esc(c.text)}</div>
       </div>`).join("");
   });
 }
@@ -585,8 +668,8 @@ function renderStories(){
   for(const uid of ids){
     const list=byUser[uid]; const u=list[list.length-1];
     html+=`<div class="story-item" onclick="openStory('${uid}')">
-      <div class="story-ring"><img src="${esc(u.authorAvatar)}"></div>
-      <div class="story-name">${uid===me.id?'Tin của bạn':esc(u.authorName)}</div></div>`;
+      <div class="story-ring"><img src="${esc(avatarOf(uid,u.authorAvatar))}"></div>
+      <div class="story-name">${uid===me.id?'Tin của bạn':esc(nameOf(uid,u.authorName))}</div></div>`;
   }
   bar.innerHTML=html;
 }
@@ -623,7 +706,7 @@ function closeStory(){ clearTimeout(svTimer); $('svMedia').innerHTML=""; $('stor
    ============================================================ */
 let bioEditing=false;
 async function renderProfile(uid){
-  let u={name:'Người dùng',avatar:'',bio:''};
+  let u={name:'Người dùng',avatar:'',cover:'',bio:''};
   try{ const s=await db.ref('users/'+uid).get(); if(s.exists())u={...u,...s.val()}; }catch{}
   if(uid===me.id){ u.name=me.name; u.avatar=me.avatar; }
   const mine=allPosts.filter(p=>p.authorId===uid);
@@ -632,15 +715,36 @@ async function renderProfile(uid){
   $('pAvatar').src=u.avatar||'';
   $('pName').textContent=u.name;
   $('pStats').textContent=`📝 ${mine.length} bài viết · ❤️ ${likesGot} lượt thích`;
+
+  // ảnh bìa: nếu có ảnh thì dùng, không thì giữ gradient
+  const cover=$('pCover');
+  cover.style.backgroundImage = u.cover ? `url("${u.cover}")` : '';
+
   const bioBox=$('pBio');
   if(u.bio){ bioBox.innerHTML=esc(u.bio); }
   else{ bioBox.innerHTML=`<span class="placeholder">${uid===me.id?'Chưa có giới thiệu — bấm "Sửa hồ sơ" để thêm.':'Người này chưa viết giới thiệu.'}</span>`; }
 
-  const editBtn=$('pEditBtn');
-  if(uid===me.id){ editBtn.classList.remove('hidden'); $('bioInput').value=u.bio||""; }
-  else{ editBtn.classList.add('hidden'); $('pBioEdit').classList.add('hidden'); bioEditing=false; }
+  const isMine=uid===me.id;
+  $('pEditBtn').classList.toggle('hidden',!isMine);
+  $('pAvatarBtn').classList.toggle('hidden',!isMine);
+  $('pCoverBtn').classList.toggle('hidden',!isMine);
+  if(isMine){ $('bioInput').value=u.bio||""; }
+  else{ $('pBioEdit').classList.add('hidden'); $('pBio').classList.remove('hidden'); bioEditing=false; }
 
   renderFeed($('profileFeed'),mine);
+}
+// Lưu avatar tuỳ chỉnh → áp dụng mọi nơi
+async function saveAvatar(url){
+  me.avatar=url;
+  localStorage.setItem('tobi_me',JSON.stringify(me));
+  await db.ref('users/'+me.id).update({avatar:url});
+  $('meAvatar').src=url; $('compAvatar').src=url;
+  $('upbar').classList.add('hidden');
+}
+async function saveCover(url){
+  await db.ref('users/'+me.id).update({cover:url});
+  $('upbar').classList.add('hidden');
+  if(currentProfileId===me.id) renderProfile(me.id);
 }
 function toggleBioEdit(){
   bioEditing=!bioEditing;
@@ -659,22 +763,28 @@ function toggleBioEdit2(){ $('pBioEdit').classList.add('hidden'); $('pBio').clas
    ============================================================ */
 function sendChat(){
   const inp=$('chatInput'); const text=inp.value.trim(); if(!text)return;
-  db.ref('chat').push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text,createdAt:Date.now()});
+  db.ref('chat').push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text,createdAt:Date.now()})
+    .catch(e=>{ console.error(e); toast('❌ Gửi tin nhắn thất bại. Kiểm tra Rules của "chat".',3500); });
   inp.value="";
+  inp.focus(); // giữ con trỏ trong ô để gõ tiếp ngay
 }
+let lastChat=[];
 function listenChat(){
   db.ref('chat').limitToLast(60).on('value',snap=>{
-    const arr=[]; snap.forEach(c=>arr.push(c.val()));
-    const body=$('chatBody');
-    body.innerHTML=arr.map(m=>{
-      const mine=m.authorId===me.id;
-      return `<div class="msg ${mine?'mine':''}">
-        <img src="${esc(m.authorAvatar)}" onclick="goProfile('${m.authorId}')">
-        <div class="content"><div class="who">${mine?'Bạn':esc(m.authorName)}</div>
-        <div class="bubble">${esc(m.text)}</div></div></div>`;
-    }).join("");
-    body.scrollTop=body.scrollHeight;
+    lastChat=[]; snap.forEach(c=>lastChat.push(c.val()));
+    rerenderChat();
   });
+}
+function rerenderChat(){
+  const body=$('chatBody'); if(!body)return;
+  body.innerHTML=lastChat.map(m=>{
+    const mine=m.authorId===me.id;
+    return `<div class="msg ${mine?'mine':''}">
+      <img src="${esc(avatarOf(m.authorId,m.authorAvatar))}" onclick="goProfile('${m.authorId}')">
+      <div class="content"><div class="who">${mine?'Bạn':esc(nameOf(m.authorId,m.authorName))}</div>
+      <div class="bubble">${esc(m.text)}</div></div></div>`;
+  }).join("");
+  body.scrollTop=body.scrollHeight;
 }
 
 boot();

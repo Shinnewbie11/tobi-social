@@ -68,6 +68,7 @@ a{color:inherit;text-decoration:none}
 .tik-act{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
 .tik-act .ico{font-size:32px;line-height:1}
 .tik-act.del .ico{font-size:26px}
+.tik-act.snd .ico{font-size:26px}
 .tik-act.liked .ico{filter:drop-shadow(0 0 6px var(--red))}
 
 .tik-bottom{position:absolute;left:14px;right:80px;bottom:calc(env(safe-area-inset-bottom) + 86px);z-index:5;text-shadow:0 1px 5px rgba(0,0,0,.6)}
@@ -492,10 +493,11 @@ function buildCard(p){
   const card=document.createElement('div');
   card.className='tik';card.id='tik-'+p.id;card.dataset.pid=p.id;
   let media;
-  if(p.mediaUrl&&p.mediaType==='video') media=`<video class="tik-media cover" src="${esc(p.mediaUrl)}" loop muted playsinline webkit-playsinline></video><div class="tik-mute" data-mute>🔇</div>`;
+  if(p.mediaUrl&&p.mediaType==='video') media=`<video class="tik-media" src="${esc(p.mediaUrl)}" loop muted playsinline webkit-playsinline></video><div class="tik-mute" data-mute>🔇</div>`;
   else if(p.mediaUrl) media=`<img class="tik-media cover" src="${esc(p.mediaUrl)}">`;
   else media=`<div class="tik-textbg"><div class="tik-bigtext">${esc(p.text)}</div></div>`;
   const own=p.authorId===me.id;
+  const isVid=p.mediaUrl&&p.mediaType==='video';
   card.innerHTML=`
     ${media}
     <div class="tik-shade"></div>
@@ -504,6 +506,7 @@ function buildCard(p){
       <button class="tik-act like" data-like><span class="ico">🤍</span><span class="cnt"></span></button>
       <button class="tik-act cmt" data-cmt><span class="ico">💬</span><span class="cnt"></span></button>
       ${own?'<button class="tik-act del" data-del><span class="ico">🗑️</span>Xoá</button>':''}
+      ${isVid?'<button class="tik-act snd" data-snd><span class="ico">🔇</span>Âm thanh</button>':''}
     </div>
     <div class="tik-bottom">
       <div class="tik-name" data-name>@${esc(nameOf(p.authorId,p.authorName))}</div>
@@ -518,7 +521,15 @@ function buildCard(p){
   const vid=card.querySelector('video.tik-media');
   if(vid){
     const mi=card.querySelector('[data-mute]');
-    card.querySelector('.tik-shade').onclick=()=>{ vid.muted=!vid.muted; mi.textContent=vid.muted?'🔇':'🔊'; mi.classList.add('show'); setTimeout(()=>mi.classList.remove('show'),700); if(vid.paused)vid.play().catch(()=>{}); };
+    const sndBtn=card.querySelector('[data-snd]');
+    const setMuted=(m)=>{
+      vid.muted=m;
+      if(sndBtn)sndBtn.querySelector('.ico').textContent=m?'🔇':'🔊';
+      if(mi){mi.textContent=m?'🔇':'🔊';mi.classList.add('show');setTimeout(()=>mi.classList.remove('show'),700);}
+      if(vid.paused)vid.play().catch(()=>{});
+    };
+    card.querySelector('.tik-shade').onclick=()=>setMuted(!vid.muted);
+    if(sndBtn)sndBtn.onclick=(e)=>{e.stopPropagation();setMuted(!vid.muted);};
   }
   updateCard(card,p);
   feedObserver&&feedObserver.observe(card);

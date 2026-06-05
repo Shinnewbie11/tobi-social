@@ -413,7 +413,6 @@ function listenUsers(){
     if(currentView==='home') renderFeed($('feed'),allPosts.slice(0,80));
     if(currentView==='profile') renderProfile(currentProfileId);
     renderStories();
-    rerenderChat();
   });
 }
 
@@ -432,7 +431,7 @@ async function boot(){
         if(data.createdAt && Date.now()-data.createdAt>10*60*1000){ return fail("Link đã hết hạn. Gõ lại lệnh trong Discord nhé."); }
         me={id:data.discordId,name:data.username,avatar:data.avatar,discordAvatar:data.avatar};
         localStorage.setItem('tobi_me',JSON.stringify(me));
-        db.ref('loginTokens/'+token).remove().catch(()=>{});
+        // Không xoá token ở đây (web không có quyền ghi loginTokens) — token tự hết hạn sau 10 phút
         history.replaceState({},"",location.pathname);
         return enterApp();
       }
@@ -788,22 +787,27 @@ function bindChat(){
     if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); sendChat(); }
   });
 }
-let lastChat=[];
 function listenChat(){
-  db.ref('chat').limitToLast(60).on('value',snap=>{
-    lastChat=[]; snap.forEach(c=>lastChat.push(c.val()));
-    rerenderChat();
-  });
+  const body=$('chatBody'); if(body)body.innerHTML="";
+  const ref=db.ref('chat').limitToLast(60);
+  // Mỗi tin mới đến → nối thêm vào cuối
+  ref.on('child_added',snap=>{ appendChatMsg(snap.key,snap.val()); });
+  // Có tin bị xoá → gỡ khỏi màn hình (nếu có)
+  ref.on('child_removed',snap=>{ const el=document.getElementById('m-'+snap.key); if(el)el.remove(); });
 }
-function rerenderChat(){
-  const body=$('chatBody'); if(!body)return;
-  body.innerHTML=lastChat.map(m=>{
-    const mine=m.authorId===me.id;
-    return `<div class="msg ${mine?'mine':''}">
-      <img src="${esc(avatarOf(m.authorId,m.authorAvatar))}" onclick="goProfile('${m.authorId}')">
-      <div class="content"><div class="who">${mine?'Bạn':esc(nameOf(m.authorId,m.authorName))}</div>
-      <div class="bubble">${esc(m.text)}</div></div></div>`;
-  }).join("");
+function appendChatMsg(key,m){
+  const body=$('chatBody'); if(!body||!m)return;
+  if(document.getElementById('m-'+key))return; // tránh trùng
+  const mine=m.authorId===me.id;
+  const div=document.createElement('div');
+  div.id='m-'+key;
+  div.className='msg'+(mine?' mine':'');
+  div.innerHTML=`<img src="${esc(avatarOf(m.authorId,m.authorAvatar))}">
+    <div class="content"><div class="who">${mine?'Bạn':esc(nameOf(m.authorId,m.authorName))}</div>
+    <div class="bubble">${esc(m.text)}</div></div>`;
+  const img=div.querySelector('img');
+  if(img) img.onclick=()=>goProfile(m.authorId);
+  body.appendChild(div);
   body.scrollTop=body.scrollHeight;
 }
 

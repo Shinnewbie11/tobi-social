@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>TobiSocial</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -10,352 +10,291 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --bg:#0d0f1a; --bg-2:#141728; --card:#181b2e; --card-2:#1f2238;
-  --line:#2a2e48; --txt:#e8eaf6; --txt-dim:#9aa0c4; --txt-faint:#6b7099;
-  --accent:#6c7cff; --accent-2:#00e0c6; --pop:#ff6b9d; --good:#3ddc84;
-  --radius:18px; --shadow:0 14px 40px rgba(0,0,0,.45);
+  --bg:#000; --panel:#121214; --panel-2:#1c1c20; --line:#2a2a30;
+  --txt:#fff; --txt-dim:#a8a8b3; --txt-faint:#6c6c78;
+  --red:#fe2c55; --cyan:#25f4ee; --accent:#fe2c55;
+  --radius:16px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{
-  background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(108,124,255,.14), transparent 60%),
-    radial-gradient(900px 500px at -5% 10%, rgba(0,224,198,.10), transparent 55%),
-    var(--bg);
-  color:var(--txt); font-family:"Plus Jakarta Sans",sans-serif;
-  -webkit-font-smoothing:antialiased; line-height:1.45;
-}
-::selection{background:var(--accent);color:#fff}
-button{font-family:inherit;cursor:pointer;border:none}
+body{background:var(--bg);color:var(--txt);font-family:"Plus Jakarta Sans",sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 input,textarea{font-family:inherit}
-img,video{max-width:100%;display:block}
+img,video{display:block;max-width:100%}
 a{color:inherit;text-decoration:none}
 .hidden{display:none !important}
+::selection{background:var(--red);color:#fff}
 
 /* ---------- LOGIN ---------- */
-#login{min-height:100dvh;display:grid;place-items:center;padding:24px;text-align:center}
-.login-card{
-  max-width:440px;width:100%;
-  background:linear-gradient(180deg,var(--card),var(--bg-2));
-  border:1px solid var(--line);border-radius:26px;padding:46px 34px;
-  box-shadow:var(--shadow);position:relative;overflow:hidden;
-}
-.login-card::before{
-  content:"";position:absolute;inset:-2px;border-radius:28px;padding:2px;
-  background:linear-gradient(120deg,var(--accent),var(--accent-2),var(--pop));
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;
-}
-.logo{
-  font-family:"Bricolage Grotesque";font-weight:800;font-size:34px;letter-spacing:-1px;
-  background:linear-gradient(100deg,var(--accent),var(--accent-2));
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-#login p{color:var(--txt-dim);font-size:15px;margin:10px 0 22px}
-.login-status{margin-top:18px;font-size:13px;color:var(--txt-faint);background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:12px}
-.spinner{width:34px;height:34px;border-radius:50%;margin:0 auto 18px;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite}
+#login{position:fixed;inset:0;display:grid;place-items:center;padding:24px;text-align:center;background:var(--bg);z-index:200}
+.login-card{max-width:420px;width:100%;background:linear-gradient(180deg,#161618,#0c0c0e);border:1px solid var(--line);border-radius:24px;padding:44px 30px}
+.logo{font-family:"Bricolage Grotesque";font-weight:800;font-size:34px;letter-spacing:-1px;background:linear-gradient(100deg,var(--cyan),var(--red));-webkit-background-clip:text;background-clip:text;color:transparent}
+#login p{color:var(--txt-dim);margin:10px 0 22px;font-size:15px}
+.login-status{margin-top:16px;font-size:13px;color:var(--txt-faint);background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.spinner{width:34px;height:34px;border-radius:50%;margin:0 auto 18px;border:3px solid var(--line);border-top-color:var(--red);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ---------- TOPBAR ---------- */
-#app{min-height:100dvh}
-.topbar{
-  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:8px;
-  padding:11px 20px;background:rgba(13,15,26,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
-}
-.topbar .logo{font-size:22px;cursor:pointer}
-.nav{display:flex;gap:6px;margin-left:14px}
-.nav a{padding:8px 14px;border-radius:11px;font-size:14px;font-weight:700;color:var(--txt-dim);transition:.15s}
-.nav a:hover{color:var(--txt);background:var(--card-2)}
-.nav a.active{color:#0d0f1a;background:linear-gradient(100deg,var(--accent),var(--accent-2))}
-.topbar .me{margin-left:auto;display:flex;align-items:center;gap:10px}
-.topbar .me img{width:38px;height:38px;border-radius:50%;border:2px solid var(--accent);cursor:pointer}
-.topbar .me .nm{font-weight:700;font-size:14px}
-.btn-logout{background:var(--card-2);color:var(--txt-dim);border:1px solid var(--line);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;transition:.15s}
-.btn-logout:hover{color:var(--pop);border-color:var(--pop)}
+/* ---------- APP SHELL ---------- */
+#app{position:fixed;inset:0}
 
-/* ---------- LAYOUT ---------- */
-.shell{max-width:1180px;margin:0 auto;padding:22px 20px;display:grid;grid-template-columns:1fr 1.35fr;gap:22px;align-items:start}
-.col{display:flex;flex-direction:column;gap:18px}
-.col-right{position:sticky;top:78px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.card-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
-.card-head .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2)}
+/* ---------- TOP STORIES BAR (chỉ ở feed) ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:60;padding:calc(env(safe-area-inset-top) + 8px) 10px 8px;background:linear-gradient(to bottom,rgba(0,0,0,.65),transparent)}
+.stories{display:flex;gap:11px;overflow-x:auto;padding:2px 2px 6px}
+.stories::-webkit-scrollbar{display:none}
+.story-item{flex-shrink:0;width:60px;text-align:center}
+.story-ring{width:54px;height:54px;border-radius:50%;padding:2.5px;margin:0 auto 4px;background:linear-gradient(135deg,var(--cyan),var(--red))}
+.story-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid #000}
+.story-add .story-ring{background:rgba(255,255,255,.12);border:2px dashed rgba(255,255,255,.4);display:grid;place-items:center;font-size:22px;color:var(--cyan);padding:0}
+.story-name{font-size:10.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #000}
 
-/* ---------- STORIES BAR ---------- */
-.stories{padding:14px 16px;display:flex;gap:12px;overflow-x:auto}
-.stories::-webkit-scrollbar{height:0}
-.story-item{flex-shrink:0;width:72px;text-align:center;cursor:pointer}
-.story-ring{width:64px;height:64px;border-radius:50%;padding:3px;margin:0 auto 5px;background:linear-gradient(135deg,var(--accent),var(--accent-2),var(--pop))}
-.story-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--bg)}
-.story-add .story-ring{background:var(--card-2);border:2px dashed var(--line);display:grid;place-items:center;font-size:26px;color:var(--accent-2);padding:0}
-.story-name{font-size:11px;color:var(--txt-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ---------- FEED (TikTok) ---------- */
+#feed{position:absolute;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch}
+#feed::-webkit-scrollbar{display:none}
+.tik{position:relative;height:100dvh;width:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+.tik-media{width:100%;height:100%;object-fit:contain;background:#000}
+.tik-media.cover{object-fit:cover}
+.tik-textbg{width:100%;height:100%;display:grid;place-items:center;padding:50px 26px;background:radial-gradient(120% 90% at 50% 0%,#241a2e,#0a0a0c)}
+.tik-bigtext{font-family:"Bricolage Grotesque";font-weight:700;font-size:26px;line-height:1.35;text-align:center;white-space:pre-wrap;word-break:break-word;max-height:70vh;overflow:auto}
+.tik-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 26%,transparent 70%,rgba(0,0,0,.35) 100%)}
+.tik-mute{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:46px;opacity:0;transition:.2s;pointer-events:none;text-shadow:0 2px 12px #000}
+.tik-mute.show{opacity:.9}
 
-/* ---------- COMPOSER ---------- */
-.composer{padding:16px 18px}
-.composer-top{display:flex;gap:12px}
-.composer-top img{width:44px;height:44px;border-radius:50%;flex-shrink:0;border:2px solid var(--line)}
-.composer textarea{flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:14px;color:var(--txt);padding:12px 14px;font-size:15px;resize:none;min-height:56px;outline:none;transition:.15s}
-.composer textarea:focus{border-color:var(--accent)}
-.composer textarea::placeholder{color:var(--txt-faint)}
-.preview{margin-top:12px;border-radius:14px;overflow:hidden;border:1px solid var(--line);position:relative}
-.preview .rm{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:16px;line-height:30px;text-align:center;cursor:pointer}
-.composer-actions{display:flex;align-items:center;gap:8px;margin-top:12px}
-.chip{display:inline-flex;align-items:center;gap:6px;background:var(--card-2);border:1px solid var(--line);color:var(--txt-dim);padding:8px 12px;border-radius:11px;font-size:13px;font-weight:600;transition:.15s}
-.chip:hover{color:var(--accent-2);border-color:var(--accent-2)}
-.btn-post{margin-left:auto;background:linear-gradient(100deg,var(--accent),var(--accent-2));color:#0d0f1a;font-weight:800;padding:9px 20px;border-radius:11px;font-size:14px;transition:.15s}
-.btn-post:hover{filter:brightness(1.08)}
-.btn-post:disabled{opacity:.5;cursor:not-allowed}
-.upbar{font-size:12px;color:var(--txt-faint);margin-top:8px}
+.tik-rail{position:absolute;right:10px;bottom:calc(env(safe-area-inset-bottom) + 96px);display:flex;flex-direction:column;align-items:center;gap:18px;z-index:5}
+.tik-av{width:48px;height:48px;border-radius:50%;border:2px solid #fff;object-fit:cover;background:#333}
+.tik-act{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.tik-act .ico{font-size:32px;line-height:1}
+.tik-act.del .ico{font-size:26px}
+.tik-act.liked .ico{filter:drop-shadow(0 0 6px var(--red))}
 
-/* ---------- POST ---------- */
-.post{padding:16px 18px}
-.post + .post{border-top:1px solid var(--line)}
-.post-head{display:flex;align-items:center;gap:11px;margin-bottom:10px}
-.post-head img{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);cursor:pointer}
-.post-head .nm{font-weight:700;font-size:14.5px;cursor:pointer}
-.post-head .nm:hover{color:var(--accent-2)}
-.post-head .tm{font-size:12px;color:var(--txt-faint)}
-.post-text{font-size:15px;white-space:pre-wrap;word-break:break-word;margin-bottom:10px}
-.post-media{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-bottom:10px}
-.post-actions{display:flex;gap:8px}
-.act{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--line);color:var(--txt-dim);padding:7px 13px;border-radius:10px;font-size:13px;font-weight:600;transition:.15s}
-.act:hover{border-color:var(--accent);color:var(--txt)}
-.act.liked{color:var(--pop);border-color:var(--pop)}
-.act.del:hover{border-color:var(--pop);color:var(--pop)}
-.comments{margin-top:12px;border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
-.cmt{display:flex;gap:9px}
-.cmt img{width:30px;height:30px;border-radius:50%;flex-shrink:0;cursor:pointer}
-.cmt .bub{background:var(--card-2);border:1px solid var(--line);border-radius:13px;padding:8px 12px;font-size:13.5px}
-.cmt .bub .cn{font-weight:700;font-size:12.5px;color:var(--accent-2);margin-bottom:2px;cursor:pointer}
-.cmt-form{display:flex;gap:8px;margin-top:4px}
-.cmt-form img{width:30px;height:30px;border-radius:50%}
-.cmt-form input{flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:11px;color:var(--txt);padding:8px 12px;font-size:13.5px;outline:none}
-.cmt-form input:focus{border-color:var(--accent)}
+.tik-bottom{position:absolute;left:14px;right:80px;bottom:calc(env(safe-area-inset-bottom) + 86px);z-index:5;text-shadow:0 1px 5px rgba(0,0,0,.6)}
+.tik-name{font-weight:800;font-size:16px;margin-bottom:5px}
+.tik-cap{font-size:14px;color:#f0f0f3;white-space:pre-wrap;word-break:break-word;max-height:25vh;overflow:auto}
+.tik-time{font-size:11px;color:var(--txt-dim);margin-top:4px}
 
-/* ---------- CHAT ---------- */
-.chat-card{display:flex;flex-direction:column;height:calc(100dvh - 100px);max-height:760px}
-.chat-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
-.chat-body::-webkit-scrollbar{width:8px}.chat-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
-.msg{display:flex;gap:9px;max-width:88%}
-.msg img{width:32px;height:32px;border-radius:50%;flex-shrink:0;align-self:flex-end;cursor:pointer}
+/* ---------- VIEW: CHAT / PROFILE (cuộn thường) ---------- */
+.page{position:absolute;inset:0;bottom:0;overflow-y:auto;background:var(--bg);padding-bottom:84px}
+.page::-webkit-scrollbar{width:0}
+.page-head{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);font-weight:800;font-size:17px}
+.page-head .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+
+/* CHAT */
+#chatView{display:flex;flex-direction:column}
+.chat-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
+.chat-body::-webkit-scrollbar{width:0}
+.msg{display:flex;gap:9px;max-width:86%}
+.msg img.av{width:32px;height:32px;border-radius:50%;flex-shrink:0;align-self:flex-end;object-fit:cover}
 .msg .content{display:flex;flex-direction:column;gap:2px}
-.msg .who{font-size:11.5px;color:var(--txt-faint);padding-left:4px}
-.msg .bubble{background:var(--card-2);border:1px solid var(--line);padding:9px 13px;border-radius:15px;font-size:14px;word-break:break-word}
+.msg .who{font-size:11px;color:var(--txt-faint);padding-left:4px}
+.msg .bubble{background:var(--panel-2);border:1px solid var(--line);padding:9px 13px;border-radius:15px;font-size:14.5px;word-break:break-word}
+.msg .bubble img,.msg .bubble video{max-width:200px;max-height:240px;border-radius:10px;margin-top:2px}
 .msg.mine{margin-left:auto;flex-direction:row-reverse}
 .msg.mine .who{text-align:right;padding-right:4px;padding-left:0}
-.msg.mine .bubble{background:linear-gradient(120deg,var(--accent),#5a6bff);border-color:transparent;color:#fff;border-bottom-right-radius:5px}
-.chat-foot{padding:12px 14px;border-top:1px solid var(--line);display:flex;gap:9px}
-.chat-foot input{flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:13px;color:var(--txt);padding:11px 15px;font-size:14px;outline:none}
-.chat-foot input:focus{border-color:var(--accent)}
-.chat-foot button#chatSend{width:46px;border-radius:13px;font-size:18px;background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#0d0f1a;font-weight:800}
-.chat-attach{width:40px;border-radius:12px;font-size:17px;background:var(--card-2);border:1px solid var(--line)}
-.chat-attach:hover{border-color:var(--accent-2)}
-.msg .bubble img,.msg .bubble video{max-width:200px;max-height:240px;border-radius:10px;display:block;margin-top:2px;cursor:pointer}
+.msg.mine .bubble{background:linear-gradient(120deg,var(--red),#ff5b7d);border-color:transparent;color:#fff;border-bottom-right-radius:5px}
+.chat-foot{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 64px);display:flex;gap:8px;padding:10px 12px;background:rgba(0,0,0,.9);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.chat-foot input{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;color:var(--txt);padding:12px 15px;font-size:16px;outline:none}
+.chat-foot input:focus{border-color:var(--red)}
+.chat-foot .ic{width:44px;border-radius:13px;font-size:18px;background:var(--panel-2);border:1px solid var(--line)}
+.chat-foot .send{width:46px;border-radius:13px;font-size:18px;background:linear-gradient(120deg,var(--red),#ff5b7d);color:#fff;font-weight:800}
 
-.empty{padding:40px 20px;text-align:center;color:var(--txt-faint);font-size:14px}
+/* PROFILE */
+.pcover{height:150px;background:linear-gradient(120deg,var(--red),#7a2bff,var(--cyan));background-size:cover;background-position:center;position:relative}
+.pcover-btn{position:absolute;right:12px;bottom:12px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 12px;border-radius:10px;font-size:12.5px;font-weight:700}
+.phead{padding:0 18px;margin-top:-46px;display:flex;align-items:flex-end;gap:14px}
+.pav-wrap{position:relative}
+.pav{width:94px;height:94px;border-radius:50%;border:4px solid #000;object-fit:cover;background:#222}
+.pav-cam{position:absolute;right:0;bottom:2px;width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;font-size:14px;display:grid;place-items:center;border:3px solid #000}
+.pinfo{flex:1;padding-bottom:6px}
+.pname{font-family:"Bricolage Grotesque";font-size:21px;font-weight:800}
+.pstats{font-size:13px;color:var(--txt-dim);margin-top:2px}
+.pbio{padding:14px 18px;font-size:14px;color:var(--txt-dim);white-space:pre-wrap}
+.pbio .ph{color:var(--txt-faint);font-style:italic}
+.btn-edit{margin:0 18px;background:var(--panel-2);border:1px solid var(--line);color:#fff;padding:9px 0;border-radius:11px;font-size:13.5px;font-weight:700;width:calc(100% - 36px)}
+.bioedit{padding:10px 18px;display:flex;flex-direction:column;gap:9px}
+.bioedit textarea{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;color:#fff;padding:11px;font-size:16px;resize:vertical;min-height:70px;outline:none}
+.bioedit .row{display:flex;gap:8px}
+.bioedit .row button{flex:1;padding:10px;border-radius:11px;font-weight:700}
+.bioedit .save{background:linear-gradient(120deg,var(--red),#ff5b7d);color:#fff}
+.bioedit .cancel{background:var(--panel-2);border:1px solid var(--line);color:var(--txt-dim)}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:14px 2px 0}
+.g-item{position:relative;aspect-ratio:9/13;background:var(--panel-2);overflow:hidden;cursor:pointer}
+.g-item img,.g-item video{width:100%;height:100%;object-fit:cover}
+.g-item .g-text{width:100%;height:100%;display:grid;place-items:center;padding:8px;font-size:12px;color:var(--txt-dim);text-align:center;background:radial-gradient(120% 90% at 50% 0%,#241a2e,#0a0a0c)}
+.g-item .g-badge{position:absolute;top:5px;right:6px;font-size:13px;text-shadow:0 1px 3px #000}
 
-/* ---------- PROFILE ---------- */
-#viewProfile{max-width:760px;margin:0 auto;padding:22px 20px;display:flex;flex-direction:column;gap:18px}
-.profile-cover{position:relative;height:180px;background:linear-gradient(120deg,var(--accent),var(--accent-2),var(--pop));background-size:cover;background-position:center;border-radius:var(--radius) var(--radius) 0 0}
-.cover-btn{position:absolute;right:14px;bottom:14px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.25);padding:8px 13px;border-radius:10px;font-size:13px;font-weight:700;backdrop-filter:blur(4px);transition:.15s}
-.cover-btn:hover{background:rgba(0,0,0,.75)}
-.profile-head{margin-top:-52px;padding:0 22px 18px;display:flex;align-items:flex-end;gap:16px}
-.pav-wrap{position:relative;flex-shrink:0}
-.profile-head .pav{width:104px;height:104px;border-radius:50%;border:4px solid var(--card);object-fit:cover;background:var(--card);display:block}
-.pav-cam{position:absolute;right:2px;bottom:2px;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#0d0f1a;font-size:16px;display:grid;place-items:center;border:3px solid var(--card);box-shadow:0 4px 12px rgba(0,0,0,.4);transition:.15s}
-.pav-cam:hover{filter:brightness(1.1)}
-.profile-head .pinfo{flex:1;padding-bottom:6px}
-.profile-head .pname{font-family:"Bricolage Grotesque";font-size:24px;font-weight:800}
-.profile-head .pstats{font-size:13px;color:var(--txt-dim);margin-top:3px}
-.profile-bio{padding:0 22px 18px;font-size:14.5px;color:var(--txt-dim);white-space:pre-wrap}
-.profile-bio .placeholder{color:var(--txt-faint);font-style:italic}
-.btn-edit{background:var(--card-2);border:1px solid var(--line);color:var(--txt-dim);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;transition:.15s}
-.btn-edit:hover{color:var(--accent-2);border-color:var(--accent-2)}
-.bio-edit{padding:0 22px 18px;display:flex;flex-direction:column;gap:10px}
-.bio-edit textarea{background:var(--card-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);padding:10px 13px;font-size:14px;resize:vertical;min-height:70px;outline:none}
-.bio-edit textarea:focus{border-color:var(--accent)}
-.bio-edit .row{display:flex;gap:8px}
+/* ---------- BOTTOM NAV ---------- */
+#nav{position:fixed;left:0;right:0;bottom:0;z-index:70;display:flex;justify-content:space-around;align-items:center;padding:8px 6px calc(env(safe-area-inset-bottom) + 8px);background:rgba(0,0,0,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:700;color:var(--txt-faint);padding:4px}
+.nav-btn .ni{font-size:21px;line-height:1}
+.nav-btn.active{color:#fff}
+.nav-add .ni{font-size:13px;font-weight:900;background:linear-gradient(120deg,var(--cyan),var(--red));color:#000;width:42px;height:28px;border-radius:9px;display:grid;place-items:center}
+
+/* ---------- SHEETS (composer + comments) ---------- */
+.sheet-bg{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:.2s}
+.sheet-bg.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:91;background:var(--panel);border-radius:20px 20px 0 0;border-top:1px solid var(--line);transform:translateY(105%);transition:.28s cubic-bezier(.2,.8,.2,1);max-height:88dvh;display:flex;flex-direction:column}
+.sheet.open{transform:translateY(0)}
+.sheet-grip{width:40px;height:4px;border-radius:3px;background:var(--line);margin:10px auto 4px}
+.sheet-head{display:flex;align-items:center;padding:6px 16px 12px;font-weight:800;font-size:16px;border-bottom:1px solid var(--line)}
+.sheet-head .x{margin-left:auto;font-size:22px;color:var(--txt-dim)}
+.sheet-body{overflow-y:auto;padding:14px 16px}
+
+/* composer */
+.comp-top{display:flex;gap:11px}
+.comp-top img{width:42px;height:42px;border-radius:50%;flex-shrink:0;object-fit:cover}
+.comp textarea{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:13px;color:#fff;padding:11px 13px;font-size:16px;resize:none;min-height:90px;outline:none}
+.comp textarea:focus{border-color:var(--red)}
+.comp-prev{margin-top:12px;border-radius:13px;overflow:hidden;border:1px solid var(--line);position:relative}
+.comp-prev .rm{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:16px;line-height:30px;text-align:center}
+.comp-act{display:flex;align-items:center;gap:8px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--line);color:var(--txt-dim);padding:9px 13px;border-radius:11px;font-size:13.5px;font-weight:700}
+.chip:hover{color:var(--cyan);border-color:var(--cyan)}
+.btn-post{margin-left:auto;background:linear-gradient(120deg,var(--red),#ff5b7d);color:#fff;font-weight:800;padding:10px 22px;border-radius:11px;font-size:14.5px}
+.btn-post:disabled{opacity:.5}
+
+/* comments */
+.cmt{display:flex;gap:9px;margin-bottom:13px}
+.cmt img{width:34px;height:34px;border-radius:50%;flex-shrink:0;object-fit:cover}
+.cmt .cn{font-weight:700;font-size:13px;color:var(--cyan)}
+.cmt .ct{font-size:14px;color:#eaeaf0}
+.cmt-foot{display:flex;gap:8px;padding:10px 16px calc(env(safe-area-inset-bottom) + 12px);border-top:1px solid var(--line)}
+.cmt-foot input{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:13px;color:#fff;padding:11px 14px;font-size:16px;outline:none}
+.cmt-foot .send{width:46px;border-radius:13px;background:linear-gradient(120deg,var(--red),#ff5b7d);color:#fff;font-weight:800;font-size:18px}
 
 /* ---------- STORY VIEWER ---------- */
-#storyViewer{position:fixed;inset:0;z-index:90;background:rgba(5,6,12,.94);display:none;place-items:center}
-#storyViewer.open{display:grid}
-.sv-box{width:min(420px,94vw);height:min(86dvh,760px);position:relative;border-radius:18px;overflow:hidden;background:#000}
+#sv{position:fixed;inset:0;z-index:110;background:#000;display:none}
+#sv.open{display:block}
 .sv-media{width:100%;height:100%;display:grid;place-items:center;background:#000}
 .sv-media img,.sv-media video{width:100%;height:100%;object-fit:contain}
-.sv-bars{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:5px;z-index:3}
+.sv-bars{position:absolute;top:calc(env(safe-area-inset-top) + 8px);left:8px;right:8px;display:flex;gap:4px;z-index:3}
 .sv-bar{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.3);overflow:hidden}
 .sv-bar .fill{height:100%;width:0;background:#fff}
 .sv-bar.done .fill{width:100%}
-.sv-bar.active .fill{animation:fillbar var(--dur,5s) linear forwards}
-@keyframes fillbar{to{width:100%}}
-.sv-top{position:absolute;top:24px;left:14px;right:14px;display:flex;align-items:center;gap:10px;z-index:3}
-.sv-top img{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.6)}
-.sv-top .nm{color:#fff;font-weight:700;font-size:14px;text-shadow:0 1px 6px rgba(0,0,0,.6)}
-.sv-top .tm{color:rgba(255,255,255,.7);font-size:11px}
-.sv-text{position:absolute;bottom:0;left:0;right:0;padding:20px 16px;color:#fff;font-size:15px;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);z-index:3;white-space:pre-wrap}
-.sv-nav{position:absolute;inset:0;display:flex;z-index:2}
-.sv-nav div{flex:1}
-.sv-close{position:absolute;top:20px;right:16px;z-index:4;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;font-size:18px}
+.sv-bar.active .fill{animation:fill var(--dur,5s) linear forwards}
+@keyframes fill{to{width:100%}}
+.sv-top{position:absolute;top:calc(env(safe-area-inset-top) + 22px);left:12px;right:12px;display:flex;align-items:center;gap:10px;z-index:3}
+.sv-top img{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.6);object-fit:cover}
+.sv-top .nm{font-weight:700;font-size:14px;text-shadow:0 1px 5px #000}
+.sv-top .tm{font-size:11px;color:rgba(255,255,255,.75)}
+.sv-x{position:absolute;top:calc(env(safe-area-inset-top) + 18px);right:14px;z-index:5;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;font-size:18px}
+.sv-nav{position:absolute;inset:0;display:flex;z-index:2}.sv-nav div{flex:1}
 
 /* ---------- TOAST ---------- */
-#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:120;
-  background:var(--card-2);border:1px solid var(--line);color:var(--txt);
-  padding:12px 18px;border-radius:13px;font-size:14px;font-weight:600;box-shadow:var(--shadow);
-  opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 80px);transform:translateX(-50%) translateY(20px);z-index:130;background:var(--panel-2);border:1px solid var(--line);color:#fff;padding:12px 18px;border-radius:13px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-@media(max-width:880px){
-  .shell{grid-template-columns:1fr;gap:16px;padding:16px 12px}
-  .col-right{position:static}
-  .chat-card{height:auto;max-height:none}.chat-body{max-height:50vh}
-  .nav a{padding:8px 10px;font-size:13px}
-  .topbar{padding:10px 12px;gap:4px}
-  .topbar .logo{font-size:19px}
-  .topbar .me{gap:7px}
-  .topbar .me .nm{display:none}
-  .nav{margin-left:8px}
-  /* font 16px để iPhone KHÔNG tự zoom khi gõ (đây là lý do chat hay bị kẹt) */
-  input,textarea{font-size:16px !important}
-  .chat-foot input{padding:12px 14px}
-  .chat-foot button{width:50px}
-  .act{padding:9px 14px}
-  #viewProfile{padding:16px 12px}
-  .profile-head{padding:0 16px 16px;gap:12px}
-  .profile-head .pav{width:88px;height:88px}
-  .sv-box{width:100vw;height:100dvh;border-radius:0}
-}
+.empty{padding:50px 20px;text-align:center;color:var(--txt-faint);font-size:14px}
 </style>
 </head>
 <body>
 
-<!-- ============ LOGIN ============ -->
+<!-- LOGIN -->
 <section id="login">
   <div class="login-card">
     <div class="logo">TobiSocial</div>
-    <p>Mạng xã hội kết nối Discord của bạn</p>
+    <p>Mạng xã hội kết nối Discord</p>
     <div class="spinner" id="loginSpinner"></div>
     <div class="login-status" id="loginStatus">Đang kiểm tra đăng nhập…</div>
   </div>
 </section>
 
-<!-- ============ APP ============ -->
+<!-- APP -->
 <div id="app" class="hidden">
-  <div class="topbar">
-    <div class="logo" onclick="location.hash='#/'">TobiSocial</div>
-    <div class="nav">
-      <a id="navHome" onclick="location.hash='#/'">🏠 Diễn đàn</a>
-      <a id="navMe" onclick="goProfile(me.id)">👤 Trang cá nhân</a>
-    </div>
-    <div class="me">
-      <span class="nm" id="meName"></span>
-      <img id="meAvatar" alt="" onclick="goProfile(me.id)">
-      <button class="btn-logout" onclick="logout()">Đăng xuất</button>
+
+  <!-- Top stories (feed) -->
+  <div id="topbar"><div class="stories" id="storiesBar"></div></div>
+
+  <!-- FEED -->
+  <div id="feed"></div>
+
+  <!-- CHAT -->
+  <div id="chatView" class="page hidden">
+    <div class="page-head"><span class="dot"></span> Chat chung</div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-foot">
+      <button class="ic" id="chatImg" title="Gửi ảnh">🖼️</button>
+      <button class="ic" id="chatVid" title="Gửi video">🎬</button>
+      <input id="chatInput" placeholder="Nhắn gì đó…" autocomplete="off">
+      <button class="send" id="chatSend">➤</button>
     </div>
   </div>
 
-  <!-- ===== VIEW: HOME (DIỄN ĐÀN) ===== -->
-  <div id="viewHome">
-    <div class="shell">
-      <div class="col">
-        <!-- Stories -->
-        <div class="card">
-          <div class="stories" id="storiesBar"></div>
-        </div>
-        <!-- Composer -->
-        <div class="card">
-          <div class="composer">
-            <div class="composer-top">
-              <img id="compAvatar" alt="">
-              <textarea id="postText" placeholder="Bạn đang nghĩ gì thế?"></textarea>
-            </div>
-            <div id="postPreview"></div>
-            <div class="composer-actions">
-              <button class="chip" onclick="pickMedia('image','post')">🖼️ Ảnh</button>
-              <button class="chip" onclick="pickMedia('video','post')">🎬 Video</button>
-              <button class="btn-post" id="btnPost" onclick="submitPost()">Đăng</button>
-            </div>
-            <div class="upbar hidden" id="upbar"></div>
-          </div>
-        </div>
-        <!-- Feed -->
-        <div class="card">
-          <div class="card-head"><span class="dot"></span> Bảng tin</div>
-          <div id="feed"><div class="empty">Đang tải bài viết…</div></div>
-        </div>
+  <!-- PROFILE -->
+  <div id="profileView" class="page hidden">
+    <div class="pcover" id="pCover"><button class="pcover-btn hidden" id="pCoverBtn" onclick="pickMedia('image','cover')">📷 Đổi ảnh bìa</button></div>
+    <div class="phead">
+      <div class="pav-wrap">
+        <img class="pav" id="pAvatar" alt="">
+        <button class="pav-cam hidden" id="pAvatarBtn" onclick="pickMedia('image','avatar')">📷</button>
       </div>
-
-      <!-- Chat -->
-      <div class="col col-right">
-        <div class="card chat-card">
-          <div class="card-head"><span class="dot"></span> Chat chung</div>
-          <div class="chat-body" id="chatBody"></div>
-          <div class="chat-foot">
-            <button id="chatImg" class="chat-attach" title="Gửi ảnh">🖼️</button>
-            <button id="chatVid" class="chat-attach" title="Gửi video">🎬</button>
-            <input id="chatInput" placeholder="Nhắn gì đó…" autocomplete="off">
-            <button id="chatSend">➤</button>
-          </div>
-        </div>
-      </div>
+      <div class="pinfo"><div class="pname" id="pName"></div><div class="pstats" id="pStats"></div></div>
     </div>
+    <button class="btn-edit hidden" id="pEditBtn" onclick="toggleBioEdit()" style="margin-top:12px">✏️ Sửa hồ sơ</button>
+    <div class="pbio" id="pBio"></div>
+    <div class="bioedit hidden" id="pBioEdit">
+      <textarea id="bioInput" placeholder="Viết giới thiệu…" maxlength="300"></textarea>
+      <div class="row"><button class="save" onclick="saveBio()">Lưu</button><button class="cancel" onclick="toggleBioEdit()">Huỷ</button></div>
+    </div>
+    <div class="pgrid" id="pGrid"></div>
   </div>
 
-  <!-- ===== VIEW: PROFILE (TRANG CÁ NHÂN) ===== -->
-  <div id="viewProfile" class="hidden">
-    <div class="card">
-      <div class="profile-cover" id="pCover">
-        <button class="cover-btn hidden" id="pCoverBtn" onclick="pickMedia('image','cover')">📷 Đổi ảnh bìa</button>
-      </div>
-      <div class="profile-head">
-        <div class="pav-wrap">
-          <img class="pav" id="pAvatar" alt="">
-          <button class="pav-cam hidden" id="pAvatarBtn" onclick="pickMedia('image','avatar')" title="Đổi ảnh đại diện">📷</button>
-        </div>
-        <div class="pinfo">
-          <div class="pname" id="pName"></div>
-          <div class="pstats" id="pStats"></div>
-        </div>
-        <button class="btn-edit hidden" id="pEditBtn" onclick="toggleBioEdit()">✏️ Sửa hồ sơ</button>
-      </div>
-      <div class="profile-bio" id="pBio"></div>
-      <div class="bio-edit hidden" id="pBioEdit">
-        <textarea id="bioInput" placeholder="Viết vài dòng giới thiệu về bạn…" maxlength="300"></textarea>
-        <div class="row">
-          <button class="btn-post" onclick="saveBio()">Lưu</button>
-          <button class="btn-edit" onclick="toggleBioEdit()">Huỷ</button>
-        </div>
-      </div>
+  <!-- BOTTOM NAV -->
+  <div id="nav">
+    <button class="nav-btn" id="nbHome" onclick="location.hash='#/'"><span class="ni">🏠</span>Feed</button>
+    <button class="nav-btn nav-add" onclick="openComposer()"><span class="ni">＋</span></button>
+    <button class="nav-btn" id="nbChat" onclick="location.hash='#/chat'"><span class="ni">💬</span>Chat</button>
+    <button class="nav-btn" id="nbMe" onclick="goProfile(me.id)"><span class="ni">👤</span>Tôi</button>
+  </div>
+</div>
+
+<!-- COMPOSER SHEET -->
+<div class="sheet-bg" id="compBg" onclick="closeComposer()"></div>
+<div class="sheet" id="compSheet">
+  <div class="sheet-grip"></div>
+  <div class="sheet-head">Tạo bài viết<button class="x" onclick="closeComposer()">✕</button></div>
+  <div class="sheet-body comp">
+    <div class="comp-top">
+      <img id="compAvatar" alt="">
+      <textarea id="postText" placeholder="Bạn đang nghĩ gì thế?"></textarea>
     </div>
-    <div class="card">
-      <div class="card-head"><span class="dot"></span> Bài viết</div>
-      <div id="profileFeed"></div>
+    <div id="postPreview"></div>
+    <div class="comp-act">
+      <button class="chip" onclick="pickMedia('image','post')">🖼️ Ảnh</button>
+      <button class="chip" onclick="pickMedia('video','post')">🎬 Video</button>
+      <button class="btn-post" id="btnPost" onclick="submitPost()">Đăng</button>
     </div>
   </div>
 </div>
 
-<!-- ===== STORY VIEWER ===== -->
-<div id="storyViewer">
-  <div class="sv-box">
-    <button class="sv-close" onclick="closeStory()">✕</button>
-    <div class="sv-bars" id="svBars"></div>
-    <div class="sv-top" id="svTop"></div>
-    <div class="sv-media" id="svMedia"></div>
-    <div class="sv-text" id="svText"></div>
-    <div class="sv-nav"><div onclick="prevStory()"></div><div onclick="nextStory()"></div></div>
+<!-- COMMENTS SHEET -->
+<div class="sheet-bg" id="cmtBg" onclick="closeComments()"></div>
+<div class="sheet" id="cmtSheet">
+  <div class="sheet-grip"></div>
+  <div class="sheet-head" id="cmtTitle">Bình luận<button class="x" onclick="closeComments()">✕</button></div>
+  <div class="sheet-body" id="cmtList" style="flex:1"></div>
+  <div class="cmt-foot">
+    <input id="cmtInput" placeholder="Viết bình luận…" autocomplete="off">
+    <button class="send" id="cmtSend">➤</button>
   </div>
+</div>
+
+<!-- STORY VIEWER -->
+<div id="sv">
+  <button class="sv-x" onclick="closeStory()">✕</button>
+  <div class="sv-bars" id="svBars"></div>
+  <div class="sv-top" id="svTop"></div>
+  <div class="sv-media" id="svMedia"></div>
+  <div class="sv-nav"><div onclick="prevStory()"></div><div onclick="nextStory()"></div></div>
 </div>
 
 <input type="file" id="mediaPicker" style="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;border:0;padding:0;">
 <div id="toast"></div>
 
 <script>
-/* ============================================================
-   1) CẤU HÌNH
-   ============================================================ */
+/* ========== CẤU HÌNH ========== */
 const firebaseConfig = {
   apiKey:            "AIzaSyDD9cobyAok1NixsqBhsIsjm4RjFpQ3nI4",
   authDomain:        "tobisocial-c1222.firebaseapp.com",
@@ -365,493 +304,374 @@ const firebaseConfig = {
   messagingSenderId: "16328708651",
   appId:             "1:16328708651:web:c0707cdcf8fc0d54e6106e"
 };
+// ẢNH: nén & lưu thẳng Firebase (không cần gì). VIDEO: qua Cloudinary — điền 2 dòng dưới:
+const CLOUDINARY_CLOUD  = "dttjzw7em";
+const CLOUDINARY_PRESET = "sll6igjl";
+const VIDEO_MAX_BYTES   = 80 * 1024 * 1024;
+const STORY_TTL = 24 * 60 * 60 * 1000;
 
-// KHÔNG cần Cloudinary nữa: ảnh được nén & lưu thẳng vào Firebase.
-// Ảnh sẽ tự nén nhỏ; video chỉ nhận clip ngắn dưới 3MB.
-const VIDEO_MAX_BYTES = 3 * 1024 * 1024;
-
-const STORY_TTL = 24 * 60 * 60 * 1000; // 24 giờ
-
-/* ============================================================
-   2) KHỞI TẠO
-   ============================================================ */
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let me = null;
-let allPosts = [];
-let allStories = [];
-let pendingMedia = null;
-let currentView = 'home';
-let currentProfileId = null;
-let userCache = {}; // {id:{name,avatar}} — luôn lấy avatar/tên mới nhất
+let me=null, allPosts=[], allStories=[], pendingMedia=null;
+let currentView='home', currentProfileId=null, userCache={}, commentCounts={};
 
-const $ = (id)=>document.getElementById(id);
-const esc = (s)=>String(s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const timeAgo = (t)=>{
-  const s=Math.floor((Date.now()-t)/1000);
-  if(s<60)return"vừa xong"; if(s<3600)return Math.floor(s/60)+" phút";
-  if(s<86400)return Math.floor(s/3600)+" giờ"; return new Date(t).toLocaleDateString('vi-VN');
-};
-// Lấy avatar/tên mới nhất từ cache, fallback về giá trị lưu trong bài
-const avatarOf=(id,fb)=> (userCache[id]&&userCache[id].avatar) || fb || '';
-const nameOf  =(id,fb)=> (userCache[id]&&userCache[id].name)   || fb || 'Người dùng';
+const $=(id)=>document.getElementById(id);
+const esc=(s)=>String(s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const timeAgo=(t)=>{const s=Math.floor((Date.now()-t)/1000);if(s<60)return"vừa xong";if(s<3600)return Math.floor(s/60)+" phút";if(s<86400)return Math.floor(s/3600)+" giờ";return new Date(t).toLocaleDateString('vi-VN');};
+const avatarOf=(id,fb)=>(userCache[id]&&userCache[id].avatar)||fb||'';
+const nameOf=(id,fb)=>(userCache[id]&&userCache[id].name)||fb||'Người dùng';
+let _tt=null;
+function toast(msg,ms=2200){const t=$('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),ms);}
 
-// Thông báo nổi
-let _toastTimer=null;
-function toast(msg,ms=2200){
-  const t=$('toast'); if(!t)return;
-  t.textContent=msg; t.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer=setTimeout(()=>t.classList.remove('show'),ms);
-}
-
-// Lắng nghe danh bạ user → cập nhật avatar/tên realtime ở mọi nơi
-function listenUsers(){
-  db.ref('users').on('value',snap=>{
-    userCache={};
-    snap.forEach(c=>{ const v=c.val(); userCache[c.key]={name:v.name,avatar:v.avatar}; });
-    if(me && userCache[me.id]){
-      me.avatar=userCache[me.id].avatar||me.avatar;
-      $('meAvatar').src=me.avatar; $('compAvatar').src=me.avatar;
-    }
-    // vẽ lại cho avatar mới xuất hiện
-    if(currentView==='home') renderFeed($('feed'),allPosts.slice(0,80));
-    if(currentView==='profile') renderProfile(currentProfileId);
-    renderStories();
-  });
-}
-
-/* ============================================================
-   3) ĐĂNG NHẬP QUA TOKEN
-   ============================================================ */
+/* ========== ĐĂNG NHẬP ========== */
 async function boot(){
-  const params=new URLSearchParams(location.search);
-  const token=params.get('token');
+  const token=new URLSearchParams(location.search).get('token');
   if(token){
-    $('loginStatus').textContent="Đang xác thực token từ Discord…";
+    $('loginStatus').textContent="Đang xác thực token…";
     try{
       const snap=await db.ref('loginTokens/'+token).get();
       if(snap.exists()){
-        const data=snap.val();
-        if(data.createdAt && Date.now()-data.createdAt>10*60*1000){ return fail("Link đã hết hạn. Gõ lại lệnh trong Discord nhé."); }
-        me={id:data.discordId,name:data.username,avatar:data.avatar,discordAvatar:data.avatar};
+        const d=snap.val();
+        if(d.createdAt && Date.now()-d.createdAt>10*60*1000) return fail("Link đã hết hạn. Gõ lại lệnh trong Discord nhé.");
+        me={id:d.discordId,name:d.username,avatar:d.avatar,discordAvatar:d.avatar};
         localStorage.setItem('tobi_me',JSON.stringify(me));
-        // Không xoá token ở đây (web không có quyền ghi loginTokens) — token tự hết hạn sau 10 phút
         history.replaceState({},"",location.pathname);
         return enterApp();
       }
       return fail("Token không hợp lệ hoặc đã dùng. Lấy link mới trong Discord nhé.");
-    }catch(e){ console.error(e); return fail("Lỗi kết nối Firebase. Kiểm tra databaseURL."); }
+    }catch(e){console.error(e);return fail("Lỗi kết nối Firebase.");}
   }
   const saved=localStorage.getItem('tobi_me');
-  if(saved){ me=JSON.parse(saved); return enterApp(); }
-  fail("Bạn chưa đăng nhập. Vào Discord gõ lệnh <b>tweb</b> để bot gửi link đăng nhập riêng cho bạn.");
+  if(saved){me=JSON.parse(saved);return enterApp();}
+  fail("Bạn chưa đăng nhập. Vào Discord gõ <b>tweb</b> để lấy link đăng nhập.");
 }
-function fail(msg){ $('loginSpinner').classList.add('hidden'); $('loginStatus').innerHTML=msg; }
-function logout(){ localStorage.removeItem('tobi_me'); location.href=location.pathname; }
+function fail(m){$('loginSpinner').classList.add('hidden');$('loginStatus').innerHTML=m;}
+function logout(){localStorage.removeItem('tobi_me');location.href=location.pathname;}
 
 async function enterApp(){
   $('login').classList.add('hidden');
   $('app').classList.remove('hidden');
-  if(!me.discordAvatar) me.discordAvatar=me.avatar;
-
-  // Tải hồ sơ đã lưu: nếu có avatar tuỳ chỉnh thì dùng nó
+  if(!me.discordAvatar)me.discordAvatar=me.avatar;
   let prof={};
-  try{ const s=await db.ref('users/'+me.id).get(); if(s.exists())prof=s.val(); }catch{}
-  me.avatar=prof.avatar||me.discordAvatar; // avatar tuỳ chỉnh thắng
-
-  // Cập nhật hồ sơ: tên + lastSeen luôn; avatar chỉ set lần đầu (chưa có)
+  try{const s=await db.ref('users/'+me.id).get();if(s.exists())prof=s.val();}catch{}
+  me.avatar=prof.avatar||me.discordAvatar;
   const upd={name:me.name,lastSeen:Date.now()};
-  if(!prof.avatar) upd.avatar=me.avatar;
+  if(!prof.avatar)upd.avatar=me.avatar;
   db.ref('users/'+me.id).update(upd);
   localStorage.setItem('tobi_me',JSON.stringify(me));
-
-  $('meName').textContent=me.name;
-  $('meAvatar').src=me.avatar;
   $('compAvatar').src=me.avatar;
-  listenUsers();
-  listenFeed();
-  listenStories();
-  listenChat();
-  bindChat();
+  ensureObserver();
+  listenUsers(); listenCommentCounts(); listenFeed(); listenStories(); listenChat(); bindChat(); bindComments();
   window.addEventListener('hashchange',renderRoute);
   renderRoute();
 }
 
-/* ============================================================
-   4) ĐIỀU HƯỚNG (ROUTING)
-   ============================================================ */
-function goProfile(id){ location.hash='#/u/'+id; }
+/* ========== ĐIỀU HƯỚNG ========== */
+function goProfile(id){location.hash='#/u/'+id;}
 function renderRoute(){
   const h=location.hash;
-  if(h.startsWith('#/u/')){
+  $('feed').classList.add('hidden'); $('chatView').classList.add('hidden'); $('profileView').classList.add('hidden'); $('topbar').classList.add('hidden');
+  $('nbHome').classList.remove('active'); $('nbChat').classList.remove('active'); $('nbMe').classList.remove('active');
+  if(h.startsWith('#/chat')){
+    currentView='chat'; $('chatView').classList.remove('hidden'); $('nbChat').classList.add('active');
+  }else if(h.startsWith('#/u/')){
     currentView='profile'; currentProfileId=h.slice(4);
-    $('viewHome').classList.add('hidden');
-    $('viewProfile').classList.remove('hidden');
-    $('navHome').classList.remove('active');
-    $('navMe').classList.toggle('active', currentProfileId===me.id);
+    $('profileView').classList.remove('hidden');
+    if(currentProfileId===me.id)$('nbMe').classList.add('active');
     renderProfile(currentProfileId);
   }else{
-    currentView='home'; currentProfileId=null;
-    $('viewProfile').classList.add('hidden');
-    $('viewHome').classList.remove('hidden');
-    $('navHome').classList.add('active');
-    $('navMe').classList.remove('active');
+    currentView='home'; $('feed').classList.remove('hidden'); $('topbar').classList.remove('hidden'); $('nbHome').classList.add('active');
   }
-  window.scrollTo(0,0);
 }
 
-/* ============================================================
-   5) ẢNH/VIDEO — nén & lưu thẳng vào Firebase (không cần Cloudinary)
-   ============================================================ */
+/* ========== ẢNH/VIDEO ========== */
 function pickMedia(type,target){
-  const input=$('mediaPicker');           // ô chọn file cố định (mở kho ảnh ổn định trên mobile)
+  const input=$('mediaPicker');
   input.accept=type==='video'?'video/*':'image/*';
-  input.value='';                          // reset để chọn lại cùng 1 file vẫn nhận
+  input.value='';
   input.onchange=async()=>{
-    const file=input.files&&input.files[0];
-    if(!file)return;
-    const maxDim = target==='avatar'?256 : target==='cover'?1200 : 900;
+    const file=input.files&&input.files[0]; if(!file)return;
+    const maxDim=target==='avatar'?256:target==='cover'?1200:1080;
     toast('⏳ Đang xử lý…',60000);
     const res=await processMedia(file,type,maxDim);
-    if(!res)return; // processMedia tự báo lỗi
+    if(!res)return;
     toast('✅ Xong!');
-    if(target==='post'){ pendingMedia={url:res,type}; renderPreview(); }
-    if(target==='story'){ await createStory(res,type); toast('✅ Đã đăng tin!'); }
-    if(target==='avatar'){ await saveAvatar(res); toast('✅ Đã đổi ảnh đại diện!'); }
-    if(target==='cover'){ await saveCover(res); toast('✅ Đã đổi ảnh bìa!'); }
-    if(target==='chat'){ sendChatMedia(res,type); }
+    if(target==='post'){pendingMedia={url:res,type};renderPreview();}
+    if(target==='story'){await createStory(res,type);toast('✅ Đã đăng tin!');}
+    if(target==='avatar'){await saveAvatar(res);toast('✅ Đã đổi ảnh đại diện!');}
+    if(target==='cover'){await saveCover(res);toast('✅ Đã đổi ảnh bìa!');}
+    if(target==='chat'){sendChatMedia(res,type);}
   };
   input.click();
 }
-// Ảnh: thu nhỏ + nén thành JPEG rồi trả về data URL. Video: đọc trực tiếp (có giới hạn dung lượng).
 function processMedia(file,type,maxDim){
   return new Promise((resolve)=>{
     if(type==='image'){
-      const reader=new FileReader();
-      reader.onload=()=>{
+      const r=new FileReader();
+      r.onload=()=>{
         const img=new Image();
         img.onload=()=>{
-          let w=img.width, h=img.height;
-          if(w>=h && w>maxDim){ h=Math.round(h*maxDim/w); w=maxDim; }
-          else if(h>w && h>maxDim){ w=Math.round(w*maxDim/h); h=maxDim; }
-          const cv=document.createElement('canvas');
-          cv.width=w; cv.height=h;
+          let w=img.width,h=img.height;
+          if(w>=h&&w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}
+          else if(h>w&&h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}
+          const cv=document.createElement('canvas');cv.width=w;cv.height=h;
           cv.getContext('2d').drawImage(img,0,0,w,h);
           resolve(cv.toDataURL('image/jpeg',0.72));
         };
-        img.onerror=()=>{ toast('❌ Không đọc được ảnh này.',3500); resolve(null); };
-        img.src=reader.result;
+        img.onerror=()=>{toast('❌ Không đọc được ảnh.',3500);resolve(null);};
+        img.src=r.result;
       };
-      reader.onerror=()=>{ toast('❌ Lỗi đọc ảnh.',3500); resolve(null); };
-      reader.readAsDataURL(file);
+      r.onerror=()=>{toast('❌ Lỗi đọc ảnh.',3500);resolve(null);};
+      r.readAsDataURL(file);
     }else{
-      if(file.size>VIDEO_MAX_BYTES){
-        toast('⚠️ Video quá lớn (>3MB). Hãy chọn clip ngắn hơn nhé.',4500);
-        resolve(null); return;
+      if(CLOUDINARY_CLOUD.startsWith('ĐIỀN')||CLOUDINARY_PRESET.startsWith('ĐIỀN')){
+        toast('⚠️ Chưa cấu hình Cloudinary cho video. Điền 2 dòng CLOUDINARY ở đầu file nhé.',5500);resolve(null);return;
       }
-      const reader=new FileReader();
-      reader.onload=()=>resolve(reader.result);
-      reader.onerror=()=>{ toast('❌ Lỗi đọc video.',3500); resolve(null); };
-      reader.readAsDataURL(file);
+      if(file.size>VIDEO_MAX_BYTES){toast('⚠️ Video quá lớn (>80MB).',4500);resolve(null);return;}
+      const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY_PRESET);
+      fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`,{method:'POST',body:fd})
+        .then(r=>r.json()).then(d=>{if(d.secure_url)resolve(d.secure_url);else throw new Error(d.error?.message||'fail');})
+        .catch(e=>{console.error(e);toast('❌ Up video lỗi. Kiểm tra preset (Unsigned).',4500);resolve(null);});
     }
   });
 }
+
+/* ========== COMPOSER ========== */
+function openComposer(){$('compBg').classList.add('open');$('compSheet').classList.add('open');$('compAvatar').src=me.avatar;}
+function closeComposer(){$('compBg').classList.remove('open');$('compSheet').classList.remove('open');}
 function renderPreview(){
   const box=$('postPreview');
   if(!pendingMedia){box.innerHTML="";return;}
   const m=pendingMedia.type==='video'?`<video src="${pendingMedia.url}" controls></video>`:`<img src="${pendingMedia.url}">`;
-  box.innerHTML=`<div class="preview">${m}<div class="rm" onclick="clearMedia()">✕</div></div>`;
+  box.innerHTML=`<div class="comp-prev">${m}<div class="rm" onclick="clearMedia()">✕</div></div>`;
 }
-function clearMedia(){ pendingMedia=null; renderPreview(); $('upbar').classList.add('hidden'); }
-
-/* ============================================================
-   6) BÀI VIẾT
-   ============================================================ */
+function clearMedia(){pendingMedia=null;renderPreview();}
 async function submitPost(){
   const text=$('postText').value.trim();
-  if(!text && !pendingMedia)return;
+  if(!text&&!pendingMedia){toast('Nhập nội dung hoặc chọn ảnh/video nhé.');return;}
   $('btnPost').disabled=true;
-  await db.ref('posts').push({
-    authorId:me.id,authorName:me.name,authorAvatar:me.avatar,
-    text,mediaUrl:pendingMedia?.url||null,mediaType:pendingMedia?.type||null,
-    createdAt:Date.now(),likes:{}
-  });
-  $('postText').value=""; clearMedia(); $('upbar').classList.add('hidden'); $('btnPost').disabled=false;
+  await db.ref('posts').push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text,mediaUrl:pendingMedia?.url||null,mediaType:pendingMedia?.type||null,createdAt:Date.now(),likes:{}});
+  $('postText').value="";clearMedia();$('btnPost').disabled=false;closeComposer();
+  location.hash='#/';
+  toast('✅ Đã đăng!');
 }
+
+/* ========== FEED (TikTok) ========== */
 function listenFeed(){
-  db.ref('posts').limitToLast(100).on('value',snap=>{
-    allPosts=[]; snap.forEach(c=>allPosts.push({id:c.key,...c.val()})); allPosts.reverse();
-    renderFeed($('feed'),allPosts.slice(0,80));
+  db.ref('posts').limitToLast(80).on('value',snap=>{
+    allPosts=[];snap.forEach(c=>allPosts.push({id:c.key,...c.val()}));allPosts.reverse();
+    renderFeed();
     if(currentView==='profile')renderProfile(currentProfileId);
   });
 }
-function postHTML(p){
+let feedObserver=null;
+function ensureObserver(){
+  if(feedObserver)return;
+  feedObserver=new IntersectionObserver((ents)=>{
+    ents.forEach(en=>{
+      const v=en.target.querySelector('video.tik-media');if(!v)return;
+      if(en.isIntersecting&&en.intersectionRatio>0.55)v.play().catch(()=>{});else v.pause();
+    });
+  },{threshold:[0,0.55,1]});
+}
+function renderFeed(){
+  const wrap=$('feed');
+  if(!allPosts.length){wrap.innerHTML='<div class="empty" style="height:100dvh;display:grid;place-items:center">Chưa có bài viết. Bấm ＋ để đăng bài đầu tiên!</div>';return;}
+  const ids=allPosts.map(p=>p.id), seen=new Set(ids);
+  [...wrap.querySelectorAll('.tik')].forEach(c=>{if(!seen.has(c.dataset.pid))c.remove();});
+  allPosts.forEach(p=>{
+    let card=document.getElementById('tik-'+p.id);
+    if(!card){wrap.appendChild(buildCard(p));}
+    else updateCard(card,p);
+  });
+  const cur=[...wrap.querySelectorAll('.tik')].map(c=>c.dataset.pid);
+  if(cur.join(',')!==ids.join(',')){ ids.forEach(id=>{const c=document.getElementById('tik-'+id);if(c)wrap.appendChild(c);}); }
+}
+function buildCard(p){
+  const card=document.createElement('div');
+  card.className='tik';card.id='tik-'+p.id;card.dataset.pid=p.id;
+  let media;
+  if(p.mediaUrl&&p.mediaType==='video') media=`<video class="tik-media cover" src="${esc(p.mediaUrl)}" loop muted playsinline webkit-playsinline></video><div class="tik-mute" data-mute>🔇</div>`;
+  else if(p.mediaUrl) media=`<img class="tik-media cover" src="${esc(p.mediaUrl)}">`;
+  else media=`<div class="tik-textbg"><div class="tik-bigtext">${esc(p.text)}</div></div>`;
+  const own=p.authorId===me.id;
+  card.innerHTML=`
+    ${media}
+    <div class="tik-shade"></div>
+    <div class="tik-rail">
+      <img class="tik-av" data-av src="${esc(avatarOf(p.authorId,p.authorAvatar))}">
+      <button class="tik-act like" data-like><span class="ico">🤍</span><span class="cnt"></span></button>
+      <button class="tik-act cmt" data-cmt><span class="ico">💬</span><span class="cnt"></span></button>
+      ${own?'<button class="tik-act del" data-del><span class="ico">🗑️</span>Xoá</button>':''}
+    </div>
+    <div class="tik-bottom">
+      <div class="tik-name" data-name>@${esc(nameOf(p.authorId,p.authorName))}</div>
+      ${p.mediaUrl&&p.text?`<div class="tik-cap">${esc(p.text)}</div>`:''}
+      <div class="tik-time">${timeAgo(p.createdAt)}</div>
+    </div>`;
+  card.querySelector('[data-av]').onclick=()=>goProfile(p.authorId);
+  card.querySelector('[data-name]').onclick=()=>goProfile(p.authorId);
+  card.querySelector('[data-like]').onclick=()=>toggleLike(p.id);
+  card.querySelector('[data-cmt]').onclick=()=>openComments(p.id);
+  if(own)card.querySelector('[data-del]').onclick=()=>deletePost(p.id);
+  const vid=card.querySelector('video.tik-media');
+  if(vid){
+    const mi=card.querySelector('[data-mute]');
+    card.querySelector('.tik-shade').onclick=()=>{ vid.muted=!vid.muted; mi.textContent=vid.muted?'🔇':'🔊'; mi.classList.add('show'); setTimeout(()=>mi.classList.remove('show'),700); if(vid.paused)vid.play().catch(()=>{}); };
+  }
+  updateCard(card,p);
+  feedObserver&&feedObserver.observe(card);
+  return card;
+}
+function updateCard(card,p){
   const liked=p.likes&&p.likes[me.id];
   const likeCnt=p.likes?Object.keys(p.likes).length:0;
-  let media="";
-  if(p.mediaUrl){
-    media=p.mediaType==='video'
-      ?`<div class="post-media"><video src="${esc(p.mediaUrl)}" controls></video></div>`
-      :`<div class="post-media"><img src="${esc(p.mediaUrl)}"></div>`;
-  }
-  const delBtn=p.authorId===me.id?`<button class="act del" onclick="deletePost('${p.id}')">🗑️ Xoá</button>`:"";
-  return `
-  <div class="post" data-id="${p.id}">
-    <div class="post-head">
-      <img src="${esc(avatarOf(p.authorId,p.authorAvatar))}" onclick="goProfile('${p.authorId}')">
-      <div>
-        <div class="nm" onclick="goProfile('${p.authorId}')">${esc(nameOf(p.authorId,p.authorName))}</div>
-        <div class="tm">${timeAgo(p.createdAt)}</div>
-      </div>
-    </div>
-    ${p.text?`<div class="post-text">${esc(p.text)}</div>`:""}
-    ${media}
-    <div class="post-actions">
-      <button class="act ${liked?'liked':''}" onclick="toggleLike('${p.id}')">${liked?'❤️':'🤍'} ${likeCnt||""}</button>
-      <button class="act" onclick="focusComment('${p.id}')">💬 Bình luận</button>
-      ${delBtn}
-    </div>
-    <div class="comments" id="cmt-${p.id}"></div>
-    <div class="cmt-form">
-      <img src="${esc(me.avatar)}">
-      <input id="cin-${p.id}" placeholder="Viết bình luận…" onkeydown="if(event.key==='Enter')sendComment('${p.id}')">
-    </div>
-  </div>`;
+  const likeBtn=card.querySelector('[data-like]');
+  likeBtn.classList.toggle('liked',!!liked);
+  likeBtn.querySelector('.ico').textContent=liked?'❤️':'🤍';
+  likeBtn.querySelector('.cnt').textContent=likeCnt||'';
+  card.querySelector('[data-cmt] .cnt').textContent=commentCounts[p.id]||'';
+  card.querySelector('[data-name]').textContent='@'+nameOf(p.authorId,p.authorName);
 }
-function renderFeed(container,posts){
-  if(!posts.length){ container.innerHTML=`<div class="empty">Chưa có bài viết nào. Đăng bài đầu tiên đi! 🎉</div>`; return; }
-  container.innerHTML=posts.map(postHTML).join("");
-  posts.forEach(p=>listenComments(p.id));
-}
-function toggleLike(id){
-  const ref=db.ref(`posts/${id}/likes/${me.id}`);
-  ref.get().then(s=>s.exists()?ref.remove():ref.set(true));
-}
-function deletePost(id){
-  if(!confirm("Xoá bài viết này?"))return;
-  db.ref('posts/'+id).remove();
-  db.ref('comments/'+id).remove();
-}
+function toggleLike(id){const r=db.ref(`posts/${id}/likes/${me.id}`);r.get().then(s=>s.exists()?r.remove():r.set(true));}
+function deletePost(id){if(!confirm("Xoá bài viết này?"))return;db.ref('posts/'+id).remove();db.ref('comments/'+id).remove();}
 
-/* ---------- BÌNH LUẬN ---------- */
-function focusComment(id){ $(`cin-${id}`)?.focus(); }
-function sendComment(postId){
-  const inp=$(`cin-${postId}`); const text=inp.value.trim(); if(!text)return;
-  db.ref(`comments/${postId}`).push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text,createdAt:Date.now()});
-  inp.value="";
+/* ========== COMMENTS ========== */
+let curCmtPost=null, cmtRef=null;
+function bindComments(){
+  $('cmtSend').addEventListener('click',sendComment);
+  $('cmtInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();sendComment();}});
 }
-function listenComments(postId){
-  db.ref(`comments/${postId}`).limitToLast(30).on('value',snap=>{
-    const box=$(`cmt-${postId}`); if(!box)return;
-    const arr=[]; snap.forEach(c=>arr.push(c.val()));
-    box.innerHTML=arr.map(c=>`
-      <div class="cmt">
-        <img src="${esc(avatarOf(c.authorId,c.authorAvatar))}" onclick="goProfile('${c.authorId}')">
-        <div class="bub"><div class="cn" onclick="goProfile('${c.authorId}')">${esc(nameOf(c.authorId,c.authorName))}</div>${esc(c.text)}</div>
-      </div>`).join("");
+function openComments(postId){
+  curCmtPost=postId;
+  $('cmtBg').classList.add('open');$('cmtSheet').classList.add('open');
+  $('cmtList').innerHTML='<div class="empty">Đang tải…</div>';
+  if(cmtRef)cmtRef.off();
+  cmtRef=db.ref('comments/'+postId).limitToLast(100);
+  cmtRef.on('value',snap=>{
+    const arr=[];snap.forEach(c=>arr.push(c.val()));
+    $('cmtTitle').firstChild.textContent=`Bình luận (${arr.length}) `;
+    $('cmtList').innerHTML=arr.length?arr.map(c=>`
+      <div class="cmt"><img src="${esc(avatarOf(c.authorId,c.authorAvatar))}" onclick="goProfile('${c.authorId}')">
+      <div><div class="cn">${esc(nameOf(c.authorId,c.authorName))}</div><div class="ct">${esc(c.text)}</div></div></div>`).join(''):'<div class="empty">Chưa có bình luận. Mở màn đi!</div>';
+  });
+}
+function closeComments(){$('cmtBg').classList.remove('open');$('cmtSheet').classList.remove('open');if(cmtRef){cmtRef.off();cmtRef=null;}curCmtPost=null;}
+function sendComment(){
+  const inp=$('cmtInput');const text=inp.value.trim();if(!text||!curCmtPost)return;
+  inp.value="";inp.focus();
+  db.ref('comments/'+curCmtPost).push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text,createdAt:Date.now()})
+    .catch(e=>{console.error(e);toast('❌ Lỗi: '+(e.message||e.code),4000);});
+}
+function listenCommentCounts(){
+  db.ref('comments').on('value',snap=>{
+    commentCounts={};snap.forEach(c=>{commentCounts[c.key]=c.numChildren();});
+    document.querySelectorAll('.tik').forEach(card=>{const el=card.querySelector('[data-cmt] .cnt');if(el)el.textContent=commentCounts[card.dataset.pid]||'';});
   });
 }
 
-/* ============================================================
-   7) STORY (hết hạn 24h)
-   ============================================================ */
-async function createStory(url,type){
-  await db.ref('stories').push({
-    authorId:me.id,authorName:me.name,authorAvatar:me.avatar,
-    mediaUrl:url,mediaType:type,createdAt:Date.now()
-  });
-  $('upbar').classList.add('hidden');
-}
+/* ========== STORY ========== */
+async function createStory(url,type){await db.ref('stories').push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,mediaUrl:url,mediaType:type,createdAt:Date.now()});}
 function listenStories(){
-  db.ref('stories').limitToLast(200).on('value',snap=>{
-    const now=Date.now(); allStories=[];
-    snap.forEach(c=>{
-      const v=c.val();
-      if(now-v.createdAt>STORY_TTL){ db.ref('stories/'+c.key).remove().catch(()=>{}); } // dọn story hết hạn
-      else allStories.push({id:c.key,...v});
-    });
+  db.ref('stories').limitToLast(80).on('value',snap=>{
+    const now=Date.now();allStories=[];
+    snap.forEach(c=>{const v=c.val();if(now-v.createdAt>STORY_TTL)db.ref('stories/'+c.key).remove().catch(()=>{});else allStories.push({id:c.key,...v});});
     renderStories();
   });
 }
 function renderStories(){
   const bar=$('storiesBar');
-  // gom theo người, mỗi người 1 vòng tròn
-  const byUser={};
-  for(const s of allStories){ (byUser[s.authorId]=byUser[s.authorId]||[]).push(s); }
-  let html=`<div class="story-item story-add" onclick="pickMedia('image','story')">
-      <div class="story-ring">+</div><div class="story-name">Tạo tin</div></div>`;
-  // mình lên đầu nếu có
-  const ids=Object.keys(byUser).sort((a,b)=> a===me.id?-1:b===me.id?1:0);
-  for(const uid of ids){
-    const list=byUser[uid]; const u=list[list.length-1];
-    html+=`<div class="story-item" onclick="openStory('${uid}')">
-      <div class="story-ring"><img src="${esc(avatarOf(uid,u.authorAvatar))}"></div>
-      <div class="story-name">${uid===me.id?'Tin của bạn':esc(nameOf(uid,u.authorName))}</div></div>`;
-  }
+  const byUser={};for(const s of allStories)(byUser[s.authorId]=byUser[s.authorId]||[]).push(s);
+  let html=`<div class="story-item story-add" onclick="pickMedia('image','story')"><div class="story-ring">＋</div><div class="story-name">Tạo tin</div></div>`;
+  const ids=Object.keys(byUser).sort((a,b)=>a===me.id?-1:b===me.id?1:0);
+  for(const uid of ids){const u=byUser[uid][byUser[uid].length-1];
+    html+=`<div class="story-item" onclick="openStory('${uid}')"><div class="story-ring"><img src="${esc(avatarOf(uid,u.authorAvatar))}"></div><div class="story-name">${uid===me.id?'Tin của bạn':esc(nameOf(uid,u.authorName))}</div></div>`;}
   bar.innerHTML=html;
 }
-
-/* ---------- STORY VIEWER ---------- */
 let svList=[],svIdx=0,svTimer=null;
-function openStory(uid){
-  svList=allStories.filter(s=>s.authorId===uid).sort((a,b)=>a.createdAt-b.createdAt);
-  if(!svList.length)return;
-  svIdx=0; $('storyViewer').classList.add('open'); showStory();
-}
+function openStory(uid){svList=allStories.filter(s=>s.authorId===uid).sort((a,b)=>a.createdAt-b.createdAt);if(!svList.length)return;svIdx=0;$('sv').classList.add('open');showStory();}
 function showStory(){
-  clearTimeout(svTimer);
-  const s=svList[svIdx];
+  clearTimeout(svTimer);const s=svList[svIdx];
   $('svTop').innerHTML=`<img src="${esc(s.authorAvatar)}"><div><div class="nm">${esc(s.authorName)}</div><div class="tm">${timeAgo(s.createdAt)}</div></div>`;
-  $('svText').textContent=s.text||"";
   const dur=s.mediaType==='video'?0:5000;
-  $('svBars').innerHTML=svList.map((_,i)=>`<div class="sv-bar ${i<svIdx?'done':''} ${i===svIdx?'active':''}" style="--dur:${dur}ms"><div class="fill"></div></div>`).join("");
-  if(s.mediaType==='video'){
-    $('svMedia').innerHTML=`<video src="${esc(s.mediaUrl)}" autoplay playsinline></video>`;
-    const vid=$('svMedia').querySelector('video');
-    vid.onended=nextStory;
-  }else{
-    $('svMedia').innerHTML=`<img src="${esc(s.mediaUrl)}">`;
-    svTimer=setTimeout(nextStory,dur);
-  }
+  $('svBars').innerHTML=svList.map((_,i)=>`<div class="sv-bar ${i<svIdx?'done':''} ${i===svIdx?'active':''}" style="--dur:${dur}ms"><div class="fill"></div></div>`).join('');
+  if(s.mediaType==='video'){$('svMedia').innerHTML=`<video src="${esc(s.mediaUrl)}" autoplay playsinline></video>`;$('svMedia').querySelector('video').onended=nextStory;}
+  else{$('svMedia').innerHTML=`<img src="${esc(s.mediaUrl)}">`;svTimer=setTimeout(nextStory,dur);}
 }
-function nextStory(){ if(svIdx<svList.length-1){svIdx++;showStory();}else closeStory(); }
-function prevStory(){ if(svIdx>0){svIdx--;showStory();} }
-function closeStory(){ clearTimeout(svTimer); $('svMedia').innerHTML=""; $('storyViewer').classList.remove('open'); }
+function nextStory(){if(svIdx<svList.length-1){svIdx++;showStory();}else closeStory();}
+function prevStory(){if(svIdx>0){svIdx--;showStory();}}
+function closeStory(){clearTimeout(svTimer);$('svMedia').innerHTML="";$('sv').classList.remove('open');}
 
-/* ============================================================
-   8) TRANG CÁ NHÂN
-   ============================================================ */
+/* ========== PROFILE ========== */
 let bioEditing=false;
 async function renderProfile(uid){
   let u={name:'Người dùng',avatar:'',cover:'',bio:''};
-  try{ const s=await db.ref('users/'+uid).get(); if(s.exists())u={...u,...s.val()}; }catch{}
-  if(uid===me.id){ u.name=me.name; u.avatar=me.avatar; }
+  try{const s=await db.ref('users/'+uid).get();if(s.exists())u={...u,...s.val()};}catch{}
+  if(uid===me.id){u.name=me.name;u.avatar=me.avatar;}
   const mine=allPosts.filter(p=>p.authorId===uid);
-  const likesGot=mine.reduce((n,p)=>n+(p.likes?Object.keys(p.likes).length:0),0);
-
-  $('pAvatar').src=u.avatar||'';
-  $('pName').textContent=u.name;
-  $('pStats').textContent=`📝 ${mine.length} bài viết · ❤️ ${likesGot} lượt thích`;
-
-  // ảnh bìa: nếu có ảnh thì dùng, không thì giữ gradient
-  const cover=$('pCover');
-  cover.style.backgroundImage = u.cover ? `url("${u.cover}")` : '';
-
-  const bioBox=$('pBio');
-  if(u.bio){ bioBox.innerHTML=esc(u.bio); }
-  else{ bioBox.innerHTML=`<span class="placeholder">${uid===me.id?'Chưa có giới thiệu — bấm "Sửa hồ sơ" để thêm.':'Người này chưa viết giới thiệu.'}</span>`; }
-
-  const isMine=uid===me.id;
-  $('pEditBtn').classList.toggle('hidden',!isMine);
-  $('pAvatarBtn').classList.toggle('hidden',!isMine);
-  $('pCoverBtn').classList.toggle('hidden',!isMine);
-  if(isMine){ $('bioInput').value=u.bio||""; }
-  else{ $('pBioEdit').classList.add('hidden'); $('pBio').classList.remove('hidden'); bioEditing=false; }
-
-  renderFeed($('profileFeed'),mine);
+  const likes=mine.reduce((n,p)=>n+(p.likes?Object.keys(p.likes).length:0),0);
+  $('pAvatar').src=u.avatar||'';$('pName').textContent=u.name;
+  $('pStats').textContent=`📝 ${mine.length} bài · ❤️ ${likes} thích`;
+  $('pCover').style.backgroundImage=u.cover?`url("${u.cover}")`:'';
+  $('pBio').innerHTML=u.bio?esc(u.bio):`<span class="ph">${uid===me.id?'Chưa có giới thiệu — bấm "Sửa hồ sơ".':'Chưa có giới thiệu.'}</span>`;
+  const mineP=uid===me.id;
+  $('pEditBtn').classList.toggle('hidden',!mineP);
+  $('pAvatarBtn').classList.toggle('hidden',!mineP);
+  $('pCoverBtn').classList.toggle('hidden',!mineP);
+  if(mineP)$('bioInput').value=u.bio||"";else{$('pBioEdit').classList.add('hidden');$('pBio').classList.remove('hidden');bioEditing=false;}
+  $('pGrid').innerHTML=mine.length?mine.map(p=>{
+    const t=p.mediaUrl&&p.mediaType!=='video'?`<img src="${esc(p.mediaUrl)}">`:p.mediaType==='video'?`<video src="${esc(p.mediaUrl)}" muted></video><div class="g-badge">🎬</div>`:`<div class="g-text">${esc((p.text||'').slice(0,80))}</div>`;
+    return `<div class="g-item" onclick="jumpToPost('${p.id}')">${t}</div>`;
+  }).join(''):'<div class="empty" style="grid-column:1/-1">Chưa có bài viết nào.</div>';
 }
-// Lưu avatar tuỳ chỉnh → áp dụng mọi nơi
-async function saveAvatar(url){
-  me.avatar=url;
-  localStorage.setItem('tobi_me',JSON.stringify(me));
-  await db.ref('users/'+me.id).update({avatar:url});
-  $('meAvatar').src=url; $('compAvatar').src=url;
-  $('upbar').classList.add('hidden');
-}
-async function saveCover(url){
-  await db.ref('users/'+me.id).update({cover:url});
-  $('upbar').classList.add('hidden');
-  if(currentProfileId===me.id) renderProfile(me.id);
-}
-function toggleBioEdit(){
-  bioEditing=!bioEditing;
-  $('pBioEdit').classList.toggle('hidden',!bioEditing);
-  $('pBio').classList.toggle('hidden',bioEditing);
-}
-async function saveBio(){
-  const bio=$('bioInput').value.trim().slice(0,300);
-  await db.ref('users/'+me.id).update({bio});
-  bioEditing=false; toggleBioEdit2(); renderProfile(me.id);
-}
-function toggleBioEdit2(){ $('pBioEdit').classList.add('hidden'); $('pBio').classList.remove('hidden'); }
+function jumpToPost(id){location.hash='#/';setTimeout(()=>{const c=document.getElementById('tik-'+id);if(c)c.scrollIntoView();},60);}
+function toggleBioEdit(){bioEditing=!bioEditing;$('pBioEdit').classList.toggle('hidden',!bioEditing);$('pBio').classList.toggle('hidden',bioEditing);}
+async function saveBio(){const bio=$('bioInput').value.trim().slice(0,300);await db.ref('users/'+me.id).update({bio});bioEditing=false;$('pBioEdit').classList.add('hidden');$('pBio').classList.remove('hidden');renderProfile(me.id);}
+async function saveAvatar(url){me.avatar=url;localStorage.setItem('tobi_me',JSON.stringify(me));await db.ref('users/'+me.id).update({avatar:url});$('compAvatar').src=url;}
+async function saveCover(url){await db.ref('users/'+me.id).update({cover:url});if(currentProfileId===me.id)renderProfile(me.id);}
 
-/* ============================================================
-   9) CHAT
-   ============================================================ */
+/* ========== CHAT ========== */
 function sendChat(){
-  const inp=$('chatInput');
-  const text=inp.value.trim();
-  if(!text)return;
-  inp.value="";          // xoá NGAY để gõ tin tiếp theo được liền
-  inp.focus();
-  db.ref('chat').push({
-    authorId:me.id||'?',
-    authorName:me.name||'?',
-    authorAvatar:me.avatar||'',
-    text,
-    createdAt:Date.now()
-  }).catch(e=>{
-    console.error('chat push error:',e);
-    toast('❌ Bị từ chối: '+(e.message||e.code||'lỗi không rõ'),5000);
-  });
+  const inp=$('chatInput');const text=inp.value.trim();if(!text)return;
+  inp.value="";inp.focus();
+  db.ref('chat').push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text,createdAt:Date.now()}).catch(e=>{console.error(e);toast('❌ Lỗi: '+(e.message||e.code),4000);});
 }
-// Gửi ảnh/video vào chat
-function sendChatMedia(url,type){
-  db.ref('chat').push({
-    authorId:me.id||'?',
-    authorName:me.name||'?',
-    authorAvatar:me.avatar||'',
-    text:'',
-    mediaUrl:url,
-    mediaType:type,
-    createdAt:Date.now()
-  }).catch(e=>{ console.error(e); toast('❌ Bị từ chối: '+(e.message||e.code),5000); });
-}
-// Gắn nút gửi + phím Enter + nút ảnh/video (gọi 1 lần trong enterApp)
+function sendChatMedia(url,type){db.ref('chat').push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text:'',mediaUrl:url,mediaType:type,createdAt:Date.now()}).catch(e=>{console.error(e);toast('❌ Lỗi gửi',4000);});}
 function bindChat(){
-  const inp=$('chatInput'), btn=$('chatSend');
-  if(!inp||!btn)return;
-  btn.addEventListener('click',sendChat);
-  inp.addEventListener('keydown',e=>{
-    if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); sendChat(); }
-  });
-  $('chatImg')?.addEventListener('click',()=>pickMedia('image','chat'));
-  $('chatVid')?.addEventListener('click',()=>pickMedia('video','chat'));
+  $('chatSend').addEventListener('click',sendChat);
+  $('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();sendChat();}});
+  $('chatImg').addEventListener('click',()=>pickMedia('image','chat'));
+  $('chatVid').addEventListener('click',()=>pickMedia('video','chat'));
 }
 function listenChat(){
-  const body=$('chatBody'); if(body)body.innerHTML="";
+  const body=$('chatBody');if(body)body.innerHTML="";
   const ref=db.ref('chat').limitToLast(60);
-  // Mỗi tin mới đến → nối thêm vào cuối
-  ref.on('child_added',snap=>{ appendChatMsg(snap.key,snap.val()); });
-  // Có tin bị xoá → gỡ khỏi màn hình (nếu có)
-  ref.on('child_removed',snap=>{ const el=document.getElementById('m-'+snap.key); if(el)el.remove(); });
+  ref.on('child_added',s=>appendChatMsg(s.key,s.val()));
+  ref.on('child_removed',s=>{const el=document.getElementById('m-'+s.key);if(el)el.remove();});
 }
 function appendChatMsg(key,m){
-  const body=$('chatBody'); if(!body||!m)return;
-  if(document.getElementById('m-'+key))return; // tránh trùng
+  const body=$('chatBody');if(!body||!m)return;if(document.getElementById('m-'+key))return;
   const mine=m.authorId===me.id;
-  const div=document.createElement('div');
-  div.id='m-'+key;
-  div.className='msg'+(mine?' mine':'');
+  const div=document.createElement('div');div.id='m-'+key;div.className='msg'+(mine?' mine':'');
   let inner='';
-  if(m.mediaUrl){
-    inner += m.mediaType==='video'
-      ? `<video src="${esc(m.mediaUrl)}" controls></video>`
-      : `<img class="cimg" src="${esc(m.mediaUrl)}">`;
-  }
-  if(m.text) inner += esc(m.text);
-  div.innerHTML=`<img src="${esc(avatarOf(m.authorId,m.authorAvatar))}">
-    <div class="content"><div class="who">${mine?'Bạn':esc(nameOf(m.authorId,m.authorName))}</div>
-    <div class="bubble">${inner}</div></div>`;
-  const av=div.querySelector('img'); // ảnh đại diện (img đầu tiên)
-  if(av) av.onclick=()=>goProfile(m.authorId);
-  // mở ảnh chat lớn khi bấm
-  const cimg=div.querySelector('.cimg');
-  if(cimg) cimg.onclick=()=>window.open(m.mediaUrl,'_blank');
-  body.appendChild(div);
-  body.scrollTop=body.scrollHeight;
+  if(m.mediaUrl)inner+=m.mediaType==='video'?`<video src="${esc(m.mediaUrl)}" controls></video>`:`<img class="cimg" src="${esc(m.mediaUrl)}">`;
+  if(m.text)inner+=esc(m.text);
+  div.innerHTML=`<img class="av" src="${esc(avatarOf(m.authorId,m.authorAvatar))}"><div class="content"><div class="who">${mine?'Bạn':esc(nameOf(m.authorId,m.authorName))}</div><div class="bubble">${inner}</div></div>`;
+  const av=div.querySelector('img.av');if(av)av.onclick=()=>goProfile(m.authorId);
+  const ci=div.querySelector('.cimg');if(ci)ci.onclick=()=>window.open(m.mediaUrl,'_blank');
+  body.appendChild(div);body.scrollTop=body.scrollHeight;
+}
+
+/* ========== USERS CACHE ========== */
+function listenUsers(){
+  db.ref('users').on('value',snap=>{
+    userCache={};snap.forEach(c=>{const v=c.val();userCache[c.key]={name:v.name,avatar:v.avatar};});
+    if(me&&userCache[me.id]){me.avatar=userCache[me.id].avatar||me.avatar;$('compAvatar').src=me.avatar;}
+    document.querySelectorAll('.tik').forEach(card=>{const p=allPosts.find(x=>x.id===card.dataset.pid);if(p)updateCard(card,p);});
+    if(currentView==='profile')renderProfile(currentProfileId);
+    renderStories();
+  });
 }
 
 boot();

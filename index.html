@@ -366,9 +366,9 @@ const firebaseConfig = {
   appId:             "1:16328708651:web:c0707cdcf8fc0d54e6106e"
 };
 
-// Cloudinary cho ảnh/video (đăng ký free tại cloudinary.com)
-const CLOUDINARY_CLOUD  = "ĐIỀN_CLOUD_NAME";
-const CLOUDINARY_PRESET = "ĐIỀN_UPLOAD_PRESET";
+// KHÔNG cần Cloudinary nữa: ảnh được nén & lưu thẳng vào Firebase.
+// Ảnh sẽ tự nén nhỏ; video chỉ nhận clip ngắn dưới 3MB.
+const VIDEO_MAX_BYTES = 3 * 1024 * 1024;
 
 const STORY_TTL = 24 * 60 * 60 * 1000; // 24 giờ
 
@@ -503,49 +503,60 @@ function renderRoute(){
 }
 
 /* ============================================================
-   5) UPLOAD CLOUDINARY (dùng chung cho post & story)
+   5) ẢNH/VIDEO — nén & lưu thẳng vào Firebase (không cần Cloudinary)
    ============================================================ */
-function cloudinaryReady(){
-  return !(CLOUDINARY_CLOUD.startsWith('ĐIỀN') || CLOUDINARY_PRESET.startsWith('ĐIỀN'));
-}
 function pickMedia(type,target){
-  // Kiểm tra ngay từ đầu — đỡ mở kho ảnh rồi mới báo lỗi (nhất là trên điện thoại)
-  if(!cloudinaryReady()){ toast('⚠️ Chưa cấu hình Cloudinary nên không up ảnh/video được!',4000); return; }
   const input=$('mediaPicker');           // ô chọn file cố định (mở kho ảnh ổn định trên mobile)
   input.accept=type==='video'?'video/*':'image/*';
   input.value='';                          // reset để chọn lại cùng 1 file vẫn nhận
   input.onchange=async()=>{
     const file=input.files&&input.files[0];
     if(!file)return;
-    const res=await uploadToCloudinary(file,type);
-    if(res && target==='post'){ pendingMedia={url:res,type}; renderPreview(); }
-    if(res && target==='story'){ await createStory(res,type); toast('✅ Đã đăng tin!'); }
-    if(res && target==='avatar'){ await saveAvatar(res); toast('✅ Đã đổi ảnh đại diện!'); }
-    if(res && target==='cover'){ await saveCover(res); toast('✅ Đã đổi ảnh bìa!'); }
-    if(res && target==='chat'){ sendChatMedia(res,type); }
+    const maxDim = target==='avatar'?256 : target==='cover'?1200 : 900;
+    toast('⏳ Đang xử lý…',60000);
+    const res=await processMedia(file,type,maxDim);
+    if(!res)return; // processMedia tự báo lỗi
+    toast('✅ Xong!');
+    if(target==='post'){ pendingMedia={url:res,type}; renderPreview(); }
+    if(target==='story'){ await createStory(res,type); toast('✅ Đã đăng tin!'); }
+    if(target==='avatar'){ await saveAvatar(res); toast('✅ Đã đổi ảnh đại diện!'); }
+    if(target==='cover'){ await saveCover(res); toast('✅ Đã đổi ảnh bìa!'); }
+    if(target==='chat'){ sendChatMedia(res,type); }
   };
   input.click();
 }
-async function uploadToCloudinary(file,type){
-  if(CLOUDINARY_CLOUD.startsWith('ĐIỀN') || CLOUDINARY_PRESET.startsWith('ĐIỀN')){
-    toast('⚠️ Chưa cấu hình Cloudinary nên không up ảnh/video được!',4000);
-    return null;
-  }
-  toast('⏳ Đang tải lên…',60000);
-  $('btnPost').disabled=true;
-  try{
-    const fd=new FormData();
-    fd.append('file',file); fd.append('upload_preset',CLOUDINARY_PRESET);
-    const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`,{method:'POST',body:fd});
-    const data=await res.json();
-    if(!data.secure_url)throw new Error(data.error?.message||'fail');
-    toast('✅ Tải lên xong!');
-    return data.secure_url;
-  }catch(e){
-    console.error(e);
-    toast('❌ Tải lên thất bại. Kiểm tra Cloud name & upload preset (Unsigned).',4000);
-    return null;
-  }finally{ $('btnPost').disabled=false; }
+// Ảnh: thu nhỏ + nén thành JPEG rồi trả về data URL. Video: đọc trực tiếp (có giới hạn dung lượng).
+function processMedia(file,type,maxDim){
+  return new Promise((resolve)=>{
+    if(type==='image'){
+      const reader=new FileReader();
+      reader.onload=()=>{
+        const img=new Image();
+        img.onload=()=>{
+          let w=img.width, h=img.height;
+          if(w>=h && w>maxDim){ h=Math.round(h*maxDim/w); w=maxDim; }
+          else if(h>w && h>maxDim){ w=Math.round(w*maxDim/h); h=maxDim; }
+          const cv=document.createElement('canvas');
+          cv.width=w; cv.height=h;
+          cv.getContext('2d').drawImage(img,0,0,w,h);
+          resolve(cv.toDataURL('image/jpeg',0.72));
+        };
+        img.onerror=()=>{ toast('❌ Không đọc được ảnh này.',3500); resolve(null); };
+        img.src=reader.result;
+      };
+      reader.onerror=()=>{ toast('❌ Lỗi đọc ảnh.',3500); resolve(null); };
+      reader.readAsDataURL(file);
+    }else{
+      if(file.size>VIDEO_MAX_BYTES){
+        toast('⚠️ Video quá lớn (>3MB). Hãy chọn clip ngắn hơn nhé.',4500);
+        resolve(null); return;
+      }
+      const reader=new FileReader();
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=()=>{ toast('❌ Lỗi đọc video.',3500); resolve(null); };
+      reader.readAsDataURL(file);
+    }
+  });
 }
 function renderPreview(){
   const box=$('postPreview');
@@ -570,7 +581,7 @@ async function submitPost(){
   $('postText').value=""; clearMedia(); $('upbar').classList.add('hidden'); $('btnPost').disabled=false;
 }
 function listenFeed(){
-  db.ref('posts').limitToLast(200).on('value',snap=>{
+  db.ref('posts').limitToLast(100).on('value',snap=>{
     allPosts=[]; snap.forEach(c=>allPosts.push({id:c.key,...c.val()})); allPosts.reverse();
     renderFeed($('feed'),allPosts.slice(0,80));
     if(currentView==='profile')renderProfile(currentProfileId);

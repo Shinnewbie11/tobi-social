@@ -763,10 +763,23 @@ function toggleBioEdit2(){ $('pBioEdit').classList.add('hidden'); $('pBio').clas
    ============================================================ */
 function sendChat(){
   const inp=$('chatInput'); const text=inp.value.trim(); if(!text)return;
-  db.ref('chat').push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text,createdAt:Date.now()})
-    .catch(e=>{ console.error(e); toast('❌ Gửi tin nhắn thất bại. Kiểm tra Rules của "chat".',3500); });
-  inp.value="";
-  inp.focus(); // giữ con trỏ trong ô để gõ tiếp ngay
+  try{
+    db.ref('chat').push({
+      authorId:me.id||'?',
+      authorName:me.name||'?',
+      authorAvatar:me.avatar||'',
+      text,
+      createdAt:Date.now()
+    }).then(()=>{
+      inp.value=""; inp.focus();
+    }).catch(e=>{
+      console.error('chat push rejected:',e);
+      toast('❌ Bị từ chối: '+(e.message||e.code||'lỗi không rõ'),5000);
+    });
+  }catch(e){
+    console.error('chat push threw:',e);
+    toast('❌ Lỗi gửi: '+(e.message||'không rõ'),5000);
+  }
 }
 let lastChat=[];
 function listenChat(){

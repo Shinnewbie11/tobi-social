@@ -5,33 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>TobiSocial</title>
 
-<!-- ============================================================ -->
-<!--  FIREBASE SDK (compat) — không cần build, chạy thẳng được     -->
-<!-- ============================================================ -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --bg:#0d0f1a;
-  --bg-2:#141728;
-  --card:#181b2e;
-  --card-2:#1f2238;
-  --line:#2a2e48;
-  --txt:#e8eaf6;
-  --txt-dim:#9aa0c4;
-  --txt-faint:#6b7099;
-  --accent:#6c7cff;       /* blurple kiểu Discord */
-  --accent-2:#00e0c6;     /* cyan */
-  --pop:#ff6b9d;          /* hồng nhấn */
-  --good:#3ddc84;
-  --radius:18px;
-  --shadow:0 14px 40px rgba(0,0,0,.45);
+  --bg:#0d0f1a; --bg-2:#141728; --card:#181b2e; --card-2:#1f2238;
+  --line:#2a2e48; --txt:#e8eaf6; --txt-dim:#9aa0c4; --txt-faint:#6b7099;
+  --accent:#6c7cff; --accent-2:#00e0c6; --pop:#ff6b9d; --good:#3ddc84;
+  --radius:18px; --shadow:0 14px 40px rgba(0,0,0,.45);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -40,21 +26,18 @@ body{
     radial-gradient(1200px 600px at 85% -10%, rgba(108,124,255,.14), transparent 60%),
     radial-gradient(900px 500px at -5% 10%, rgba(0,224,198,.10), transparent 55%),
     var(--bg);
-  color:var(--txt);
-  font-family:"Plus Jakarta Sans",sans-serif;
-  -webkit-font-smoothing:antialiased;
-  line-height:1.45;
+  color:var(--txt); font-family:"Plus Jakarta Sans",sans-serif;
+  -webkit-font-smoothing:antialiased; line-height:1.45;
 }
 ::selection{background:var(--accent);color:#fff}
 button{font-family:inherit;cursor:pointer;border:none}
 input,textarea{font-family:inherit}
 img,video{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
 .hidden{display:none !important}
 
-/* ---------- MÀN HÌNH ĐĂNG NHẬP ---------- */
-#login{
-  min-height:100dvh;display:grid;place-items:center;padding:24px;text-align:center;
-}
+/* ---------- LOGIN ---------- */
+#login{min-height:100dvh;display:grid;place-items:center;padding:24px;text-align:center}
 .login-card{
   max-width:440px;width:100%;
   background:linear-gradient(180deg,var(--card),var(--bg-2));
@@ -70,82 +53,60 @@ img,video{max-width:100%;display:block}
 .logo{
   font-family:"Bricolage Grotesque";font-weight:800;font-size:34px;letter-spacing:-1px;
   background:linear-gradient(100deg,var(--accent),var(--accent-2));
-  -webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:10px;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
 }
-#login p{color:var(--txt-dim);font-size:15px;margin-bottom:22px}
-.login-status{
-  margin-top:18px;font-size:13px;color:var(--txt-faint);
-  background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:12px;
-}
-.spinner{
-  width:34px;height:34px;border-radius:50%;margin:0 auto 18px;
-  border:3px solid var(--line);border-top-color:var(--accent);
-  animation:spin .8s linear infinite;
-}
+#login p{color:var(--txt-dim);font-size:15px;margin:10px 0 22px}
+.login-status{margin-top:18px;font-size:13px;color:var(--txt-faint);background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.spinner{width:34px;height:34px;border-radius:50%;margin:0 auto 18px;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ---------- TOPBAR ---------- */
 #app{min-height:100dvh}
 .topbar{
-  position:sticky;top:0;z-index:40;
-  display:flex;align-items:center;gap:14px;
-  padding:12px 20px;background:rgba(13,15,26,.82);backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:8px;
+  padding:11px 20px;background:rgba(13,15,26,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
 }
-.topbar .logo{font-size:22px;margin:0}
+.topbar .logo{font-size:22px;cursor:pointer}
+.nav{display:flex;gap:6px;margin-left:14px}
+.nav a{padding:8px 14px;border-radius:11px;font-size:14px;font-weight:700;color:var(--txt-dim);transition:.15s}
+.nav a:hover{color:var(--txt);background:var(--card-2)}
+.nav a.active{color:#0d0f1a;background:linear-gradient(100deg,var(--accent),var(--accent-2))}
 .topbar .me{margin-left:auto;display:flex;align-items:center;gap:10px}
-.topbar .me img{width:38px;height:38px;border-radius:50%;border:2px solid var(--accent)}
+.topbar .me img{width:38px;height:38px;border-radius:50%;border:2px solid var(--accent);cursor:pointer}
 .topbar .me .nm{font-weight:700;font-size:14px}
-.btn-logout{
-  background:var(--card-2);color:var(--txt-dim);border:1px solid var(--line);
-  padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;transition:.15s;
-}
+.btn-logout{background:var(--card-2);color:var(--txt-dim);border:1px solid var(--line);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;transition:.15s}
 .btn-logout:hover{color:var(--pop);border-color:var(--pop)}
 
 /* ---------- LAYOUT ---------- */
-.shell{
-  max-width:1180px;margin:0 auto;padding:22px 20px;
-  display:grid;grid-template-columns:1fr 1.35fr;gap:22px;align-items:start;
-}
+.shell{max-width:1180px;margin:0 auto;padding:22px 20px;display:grid;grid-template-columns:1fr 1.35fr;gap:22px;align-items:start}
 .col{display:flex;flex-direction:column;gap:18px}
 .col-right{position:sticky;top:78px}
-
-.card{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  box-shadow:var(--shadow);overflow:hidden;
-}
-.card-head{
-  padding:14px 18px;border-bottom:1px solid var(--line);
-  display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;
-}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
 .card-head .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2)}
+
+/* ---------- STORIES BAR ---------- */
+.stories{padding:14px 16px;display:flex;gap:12px;overflow-x:auto}
+.stories::-webkit-scrollbar{height:0}
+.story-item{flex-shrink:0;width:72px;text-align:center;cursor:pointer}
+.story-ring{width:64px;height:64px;border-radius:50%;padding:3px;margin:0 auto 5px;background:linear-gradient(135deg,var(--accent),var(--accent-2),var(--pop))}
+.story-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--bg)}
+.story-add .story-ring{background:var(--card-2);border:2px dashed var(--line);display:grid;place-items:center;font-size:26px;color:var(--accent-2);padding:0}
+.story-name{font-size:11px;color:var(--txt-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ---------- COMPOSER ---------- */
 .composer{padding:16px 18px}
 .composer-top{display:flex;gap:12px}
 .composer-top img{width:44px;height:44px;border-radius:50%;flex-shrink:0;border:2px solid var(--line)}
-.composer textarea{
-  flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:14px;
-  color:var(--txt);padding:12px 14px;font-size:15px;resize:none;min-height:56px;outline:none;transition:.15s;
-}
+.composer textarea{flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:14px;color:var(--txt);padding:12px 14px;font-size:15px;resize:none;min-height:56px;outline:none;transition:.15s}
 .composer textarea:focus{border-color:var(--accent)}
 .composer textarea::placeholder{color:var(--txt-faint)}
 .preview{margin-top:12px;border-radius:14px;overflow:hidden;border:1px solid var(--line);position:relative}
-.preview .rm{
-  position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;
-  background:rgba(0,0,0,.6);color:#fff;font-size:16px;line-height:30px;text-align:center;
-}
+.preview .rm{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:16px;line-height:30px;text-align:center;cursor:pointer}
 .composer-actions{display:flex;align-items:center;gap:8px;margin-top:12px}
-.chip{
-  display:inline-flex;align-items:center;gap:6px;
-  background:var(--card-2);border:1px solid var(--line);color:var(--txt-dim);
-  padding:8px 12px;border-radius:11px;font-size:13px;font-weight:600;transition:.15s;
-}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--card-2);border:1px solid var(--line);color:var(--txt-dim);padding:8px 12px;border-radius:11px;font-size:13px;font-weight:600;transition:.15s}
 .chip:hover{color:var(--accent-2);border-color:var(--accent-2)}
-.btn-post{
-  margin-left:auto;background:linear-gradient(100deg,var(--accent),var(--accent-2));
-  color:#0d0f1a;font-weight:800;padding:9px 20px;border-radius:11px;font-size:14px;transition:.15s;
-}
+.btn-post{margin-left:auto;background:linear-gradient(100deg,var(--accent),var(--accent-2));color:#0d0f1a;font-weight:800;padding:9px 20px;border-radius:11px;font-size:14px;transition:.15s}
 .btn-post:hover{filter:brightness(1.08)}
 .btn-post:disabled{opacity:.5;cursor:not-allowed}
 .upbar{font-size:12px;color:var(--txt-faint);margin-top:8px}
@@ -154,78 +115,96 @@ img,video{max-width:100%;display:block}
 .post{padding:16px 18px}
 .post + .post{border-top:1px solid var(--line)}
 .post-head{display:flex;align-items:center;gap:11px;margin-bottom:10px}
-.post-head img{width:42px;height:42px;border-radius:50%;border:2px solid var(--line)}
-.post-head .nm{font-weight:700;font-size:14.5px}
+.post-head img{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);cursor:pointer}
+.post-head .nm{font-weight:700;font-size:14.5px;cursor:pointer}
+.post-head .nm:hover{color:var(--accent-2)}
 .post-head .tm{font-size:12px;color:var(--txt-faint)}
 .post-text{font-size:15px;white-space:pre-wrap;word-break:break-word;margin-bottom:10px}
 .post-media{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-bottom:10px}
-.post-media img{width:100%}
-.post-media video{width:100%}
 .post-actions{display:flex;gap:8px}
-.act{
-  display:inline-flex;align-items:center;gap:6px;
-  background:transparent;border:1px solid var(--line);color:var(--txt-dim);
-  padding:7px 13px;border-radius:10px;font-size:13px;font-weight:600;transition:.15s;
-}
+.act{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--line);color:var(--txt-dim);padding:7px 13px;border-radius:10px;font-size:13px;font-weight:600;transition:.15s}
 .act:hover{border-color:var(--accent);color:var(--txt)}
 .act.liked{color:var(--pop);border-color:var(--pop)}
+.act.del:hover{border-color:var(--pop);color:var(--pop)}
 .comments{margin-top:12px;border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
 .cmt{display:flex;gap:9px}
-.cmt img{width:30px;height:30px;border-radius:50%;flex-shrink:0}
+.cmt img{width:30px;height:30px;border-radius:50%;flex-shrink:0;cursor:pointer}
 .cmt .bub{background:var(--card-2);border:1px solid var(--line);border-radius:13px;padding:8px 12px;font-size:13.5px}
-.cmt .bub .cn{font-weight:700;font-size:12.5px;color:var(--accent-2);margin-bottom:2px}
+.cmt .bub .cn{font-weight:700;font-size:12.5px;color:var(--accent-2);margin-bottom:2px;cursor:pointer}
 .cmt-form{display:flex;gap:8px;margin-top:4px}
 .cmt-form img{width:30px;height:30px;border-radius:50%}
-.cmt-form input{
-  flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:11px;
-  color:var(--txt);padding:8px 12px;font-size:13.5px;outline:none;
-}
+.cmt-form input{flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:11px;color:var(--txt);padding:8px 12px;font-size:13.5px;outline:none}
 .cmt-form input:focus{border-color:var(--accent)}
 
 /* ---------- CHAT ---------- */
 .chat-card{display:flex;flex-direction:column;height:calc(100dvh - 100px);max-height:760px}
 .chat-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
-.chat-body::-webkit-scrollbar{width:8px}
-.chat-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+.chat-body::-webkit-scrollbar{width:8px}.chat-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
 .msg{display:flex;gap:9px;max-width:88%}
-.msg img{width:32px;height:32px;border-radius:50%;flex-shrink:0;align-self:flex-end}
+.msg img{width:32px;height:32px;border-radius:50%;flex-shrink:0;align-self:flex-end;cursor:pointer}
 .msg .content{display:flex;flex-direction:column;gap:2px}
 .msg .who{font-size:11.5px;color:var(--txt-faint);padding-left:4px}
-.msg .bubble{
-  background:var(--card-2);border:1px solid var(--line);
-  padding:9px 13px;border-radius:15px;font-size:14px;word-break:break-word;
-}
+.msg .bubble{background:var(--card-2);border:1px solid var(--line);padding:9px 13px;border-radius:15px;font-size:14px;word-break:break-word}
 .msg.mine{margin-left:auto;flex-direction:row-reverse}
 .msg.mine .who{text-align:right;padding-right:4px;padding-left:0}
-.msg.mine .bubble{
-  background:linear-gradient(120deg,var(--accent),#5a6bff);
-  border-color:transparent;color:#fff;border-bottom-right-radius:5px;
-}
+.msg.mine .bubble{background:linear-gradient(120deg,var(--accent),#5a6bff);border-color:transparent;color:#fff;border-bottom-right-radius:5px}
 .chat-foot{padding:12px 14px;border-top:1px solid var(--line);display:flex;gap:9px}
-.chat-foot input{
-  flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:13px;
-  color:var(--txt);padding:11px 15px;font-size:14px;outline:none;
-}
+.chat-foot input{flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:13px;color:var(--txt);padding:11px 15px;font-size:14px;outline:none}
 .chat-foot input:focus{border-color:var(--accent)}
-.chat-foot button{
-  width:46px;border-radius:13px;font-size:18px;
-  background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#0d0f1a;font-weight:800;
-}
+.chat-foot button{width:46px;border-radius:13px;font-size:18px;background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#0d0f1a;font-weight:800}
 
 .empty{padding:40px 20px;text-align:center;color:var(--txt-faint);font-size:14px}
 
-/* ---------- RESPONSIVE ---------- */
+/* ---------- PROFILE ---------- */
+#viewProfile{max-width:760px;margin:0 auto;padding:22px 20px;display:flex;flex-direction:column;gap:18px}
+.profile-cover{height:160px;background:linear-gradient(120deg,var(--accent),var(--accent-2),var(--pop));border-radius:var(--radius) var(--radius) 0 0}
+.profile-head{margin-top:-52px;padding:0 22px 18px;display:flex;align-items:flex-end;gap:16px}
+.profile-head .pav{width:104px;height:104px;border-radius:50%;border:4px solid var(--card);object-fit:cover;background:var(--card)}
+.profile-head .pinfo{flex:1;padding-bottom:6px}
+.profile-head .pname{font-family:"Bricolage Grotesque";font-size:24px;font-weight:800}
+.profile-head .pstats{font-size:13px;color:var(--txt-dim);margin-top:3px}
+.profile-bio{padding:0 22px 18px;font-size:14.5px;color:var(--txt-dim);white-space:pre-wrap}
+.profile-bio .placeholder{color:var(--txt-faint);font-style:italic}
+.btn-edit{background:var(--card-2);border:1px solid var(--line);color:var(--txt-dim);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;transition:.15s}
+.btn-edit:hover{color:var(--accent-2);border-color:var(--accent-2)}
+.bio-edit{padding:0 22px 18px;display:flex;flex-direction:column;gap:10px}
+.bio-edit textarea{background:var(--card-2);border:1px solid var(--line);border-radius:12px;color:var(--txt);padding:10px 13px;font-size:14px;resize:vertical;min-height:70px;outline:none}
+.bio-edit textarea:focus{border-color:var(--accent)}
+.bio-edit .row{display:flex;gap:8px}
+
+/* ---------- STORY VIEWER ---------- */
+#storyViewer{position:fixed;inset:0;z-index:90;background:rgba(5,6,12,.94);display:none;place-items:center}
+#storyViewer.open{display:grid}
+.sv-box{width:min(420px,94vw);height:min(86dvh,760px);position:relative;border-radius:18px;overflow:hidden;background:#000}
+.sv-media{width:100%;height:100%;display:grid;place-items:center;background:#000}
+.sv-media img,.sv-media video{width:100%;height:100%;object-fit:contain}
+.sv-bars{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:5px;z-index:3}
+.sv-bar{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.3);overflow:hidden}
+.sv-bar .fill{height:100%;width:0;background:#fff}
+.sv-bar.done .fill{width:100%}
+.sv-bar.active .fill{animation:fillbar var(--dur,5s) linear forwards}
+@keyframes fillbar{to{width:100%}}
+.sv-top{position:absolute;top:24px;left:14px;right:14px;display:flex;align-items:center;gap:10px;z-index:3}
+.sv-top img{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.6)}
+.sv-top .nm{color:#fff;font-weight:700;font-size:14px;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.sv-top .tm{color:rgba(255,255,255,.7);font-size:11px}
+.sv-text{position:absolute;bottom:0;left:0;right:0;padding:20px 16px;color:#fff;font-size:15px;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);z-index:3;white-space:pre-wrap}
+.sv-nav{position:absolute;inset:0;display:flex;z-index:2}
+.sv-nav div{flex:1}
+.sv-close{position:absolute;top:20px;right:16px;z-index:4;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;font-size:18px}
+
 @media(max-width:880px){
   .shell{grid-template-columns:1fr;gap:18px}
   .col-right{position:static}
-  .chat-card{height:auto}
-  .chat-body{max-height:420px}
+  .chat-card{height:auto}.chat-body{max-height:420px}
+  .nav a{padding:8px 10px;font-size:13px}
+  .topbar .me .nm{display:none}
 }
 </style>
 </head>
 <body>
 
-<!-- ============================ ĐĂNG NHẬP ============================ -->
+<!-- ============ LOGIN ============ -->
 <section id="login">
   <div class="login-card">
     <div class="logo">TobiSocial</div>
@@ -235,78 +214,125 @@ img,video{max-width:100%;display:block}
   </div>
 </section>
 
-<!-- ============================ APP ============================ -->
+<!-- ============ APP ============ -->
 <div id="app" class="hidden">
   <div class="topbar">
-    <div class="logo">TobiSocial</div>
+    <div class="logo" onclick="location.hash='#/'">TobiSocial</div>
+    <div class="nav">
+      <a id="navHome" onclick="location.hash='#/'">🏠 Diễn đàn</a>
+      <a id="navMe" onclick="goProfile(me.id)">👤 Trang cá nhân</a>
+    </div>
     <div class="me">
       <span class="nm" id="meName"></span>
-      <img id="meAvatar" alt="">
+      <img id="meAvatar" alt="" onclick="goProfile(me.id)">
       <button class="btn-logout" onclick="logout()">Đăng xuất</button>
     </div>
   </div>
 
-  <div class="shell">
-    <!-- CỘT TRÁI: BẢNG TIN -->
-    <div class="col">
-      <!-- Composer -->
-      <div class="card">
-        <div class="composer">
-          <div class="composer-top">
-            <img id="compAvatar" alt="">
-            <textarea id="postText" placeholder="Bạn đang nghĩ gì thế?"></textarea>
+  <!-- ===== VIEW: HOME (DIỄN ĐÀN) ===== -->
+  <div id="viewHome">
+    <div class="shell">
+      <div class="col">
+        <!-- Stories -->
+        <div class="card">
+          <div class="stories" id="storiesBar"></div>
+        </div>
+        <!-- Composer -->
+        <div class="card">
+          <div class="composer">
+            <div class="composer-top">
+              <img id="compAvatar" alt="">
+              <textarea id="postText" placeholder="Bạn đang nghĩ gì thế?"></textarea>
+            </div>
+            <div id="postPreview"></div>
+            <div class="composer-actions">
+              <button class="chip" onclick="pickMedia('image','post')">🖼️ Ảnh</button>
+              <button class="chip" onclick="pickMedia('video','post')">🎬 Video</button>
+              <button class="btn-post" id="btnPost" onclick="submitPost()">Đăng</button>
+            </div>
+            <div class="upbar hidden" id="upbar"></div>
           </div>
-          <div id="postPreview"></div>
-          <div class="composer-actions">
-            <button class="chip" onclick="pickMedia('image')">🖼️ Ảnh</button>
-            <button class="chip" onclick="pickMedia('video')">🎬 Video</button>
-            <input type="file" id="mediaInput" class="hidden" />
-            <button class="btn-post" id="btnPost" onclick="submitPost()">Đăng</button>
-          </div>
-          <div class="upbar hidden" id="upbar"></div>
+        </div>
+        <!-- Feed -->
+        <div class="card">
+          <div class="card-head"><span class="dot"></span> Bảng tin</div>
+          <div id="feed"><div class="empty">Đang tải bài viết…</div></div>
         </div>
       </div>
 
-      <!-- Feed -->
-      <div class="card">
-        <div class="card-head"><span class="dot"></span> Bảng tin</div>
-        <div id="feed"><div class="empty">Đang tải bài viết…</div></div>
-      </div>
-    </div>
-
-    <!-- CỘT PHẢI: CHAT -->
-    <div class="col col-right">
-      <div class="card chat-card">
-        <div class="card-head"><span class="dot"></span> Chat chung</div>
-        <div class="chat-body" id="chatBody"></div>
-        <div class="chat-foot">
-          <input id="chatInput" placeholder="Nhắn gì đó…" onkeydown="if(event.key==='Enter')sendChat()">
-          <button onclick="sendChat()">➤</button>
+      <!-- Chat -->
+      <div class="col col-right">
+        <div class="card chat-card">
+          <div class="card-head"><span class="dot"></span> Chat chung</div>
+          <div class="chat-body" id="chatBody"></div>
+          <div class="chat-foot">
+            <input id="chatInput" placeholder="Nhắn gì đó…" onkeydown="if(event.key==='Enter')sendChat()">
+            <button onclick="sendChat()">➤</button>
+          </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- ===== VIEW: PROFILE (TRANG CÁ NHÂN) ===== -->
+  <div id="viewProfile" class="hidden">
+    <div class="card">
+      <div class="profile-cover"></div>
+      <div class="profile-head">
+        <img class="pav" id="pAvatar" alt="">
+        <div class="pinfo">
+          <div class="pname" id="pName"></div>
+          <div class="pstats" id="pStats"></div>
+        </div>
+        <button class="btn-edit hidden" id="pEditBtn" onclick="toggleBioEdit()">✏️ Sửa hồ sơ</button>
+      </div>
+      <div class="profile-bio" id="pBio"></div>
+      <div class="bio-edit hidden" id="pBioEdit">
+        <textarea id="bioInput" placeholder="Viết vài dòng giới thiệu về bạn…" maxlength="300"></textarea>
+        <div class="row">
+          <button class="btn-post" onclick="saveBio()">Lưu</button>
+          <button class="btn-edit" onclick="toggleBioEdit()">Huỷ</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="dot"></span> Bài viết</div>
+      <div id="profileFeed"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STORY VIEWER ===== -->
+<div id="storyViewer">
+  <div class="sv-box">
+    <button class="sv-close" onclick="closeStory()">✕</button>
+    <div class="sv-bars" id="svBars"></div>
+    <div class="sv-top" id="svTop"></div>
+    <div class="sv-media" id="svMedia"></div>
+    <div class="sv-text" id="svText"></div>
+    <div class="sv-nav"><div onclick="prevStory()"></div><div onclick="nextStory()"></div></div>
   </div>
 </div>
 
 <script>
 /* ============================================================
-   1) CẤU HÌNH — ĐIỀN THÔNG TIN CỦA BẠN VÀO ĐÂY
+   1) CẤU HÌNH
    ============================================================ */
-
-// --- Firebase: lấy ở Project Settings > Your apps > Web app ---
 const firebaseConfig = {
   apiKey:            "AIzaSyDD9cobyAok1NixsqBhsIsjm4RjFpQ3nI4",
   authDomain:        "tobisocial-c1222.firebaseapp.com",
-  databaseURL:       "https://tobisocial-c1222-default-rtdb.firebaseio.com",  // QUAN TRỌNG: phải có dòng này
+  databaseURL:       "https://tobisocial-c1222-default-rtdb.firebaseio.com",
   projectId:         "tobisocial-c1222",
   storageBucket:     "tobisocial-c1222.firebasestorage.app",
   messagingSenderId: "16328708651",
   appId:             "1:16328708651:web:c0707cdcf8fc0d54e6106e"
 };
 
-// --- Cloudinary: để upload ảnh/video (đăng ký free tại cloudinary.com) ---
-const CLOUDINARY_CLOUD  = "ĐIỀN_CLOUD_NAME";       // Dashboard > Cloud name
-const CLOUDINARY_PRESET = "ĐIỀN_UPLOAD_PRESET";    // Settings > Upload > tạo "Unsigned" preset
+// Cloudinary cho ảnh/video (đăng ký free tại cloudinary.com)
+const CLOUDINARY_CLOUD  = "ĐIỀN_CLOUD_NAME";
+const CLOUDINARY_PRESET = "ĐIỀN_UPLOAD_PRESET";
+
+const STORY_TTL = 24 * 60 * 60 * 1000; // 24 giờ
 
 /* ============================================================
    2) KHỞI TẠO
@@ -314,271 +340,343 @@ const CLOUDINARY_PRESET = "ĐIỀN_UPLOAD_PRESET";    // Settings > Upload > t�
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let me = null;          // { id, name, avatar }
-let pendingMedia = null; // { url, type } sau khi upload xong
+let me = null;
+let allPosts = [];
+let allStories = [];
+let pendingMedia = null;
+let currentView = 'home';
+let currentProfileId = null;
 
 const $ = (id)=>document.getElementById(id);
 const esc = (s)=>String(s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const timeAgo = (t)=>{
-  const s = Math.floor((Date.now()-t)/1000);
-  if(s<60)   return "vừa xong";
-  if(s<3600) return Math.floor(s/60)+" phút";
-  if(s<86400)return Math.floor(s/3600)+" giờ";
-  return new Date(t).toLocaleDateString('vi-VN');
+  const s=Math.floor((Date.now()-t)/1000);
+  if(s<60)return"vừa xong"; if(s<3600)return Math.floor(s/60)+" phút";
+  if(s<86400)return Math.floor(s/3600)+" giờ"; return new Date(t).toLocaleDateString('vi-VN');
 };
 
 /* ============================================================
-   3) ĐĂNG NHẬP QUA TOKEN TỪ DISCORD (magic link)
+   3) ĐĂNG NHẬP QUA TOKEN
    ============================================================ */
 async function boot(){
-  const params = new URLSearchParams(location.search);
-  const token  = params.get('token');
-
-  // a) Có token trên URL → xác thực với Firebase
+  const params=new URLSearchParams(location.search);
+  const token=params.get('token');
   if(token){
-    $('loginStatus').textContent = "Đang xác thực token từ Discord…";
+    $('loginStatus').textContent="Đang xác thực token từ Discord…";
     try{
-      const snap = await db.ref('loginTokens/'+token).get();
+      const snap=await db.ref('loginTokens/'+token).get();
       if(snap.exists()){
-        const data = snap.val();
-        const expired = data.createdAt && (Date.now() - data.createdAt > 10*60*1000); // hết hạn 10 phút
-        if(expired){
-          fail("Link đã hết hạn. Gõ lại lệnh trong Discord để lấy link mới nhé.");
-          return;
-        }
-        // Lưu phiên đăng nhập
-        me = { id:data.discordId, name:data.username, avatar:data.avatar };
-        localStorage.setItem('tobi_me', JSON.stringify(me));
-        // Token dùng 1 lần → xoá đi
+        const data=snap.val();
+        if(data.createdAt && Date.now()-data.createdAt>10*60*1000){ return fail("Link đã hết hạn. Gõ lại lệnh trong Discord nhé."); }
+        me={id:data.discordId,name:data.username,avatar:data.avatar};
+        localStorage.setItem('tobi_me',JSON.stringify(me));
         db.ref('loginTokens/'+token).remove().catch(()=>{});
-        // Lưu hồ sơ user
-        db.ref('users/'+me.id).update({ name:me.name, avatar:me.avatar, lastSeen:Date.now() });
-        // Xoá token khỏi URL cho sạch
-        history.replaceState({}, "", location.pathname);
-        enterApp();
-        return;
-      }else{
-        fail("Token không hợp lệ hoặc đã được dùng. Lấy link mới trong Discord nhé.");
-        return;
+        db.ref('users/'+me.id).update({name:me.name,avatar:me.avatar,lastSeen:Date.now()});
+        history.replaceState({},"",location.pathname);
+        return enterApp();
       }
-    }catch(e){
-      console.error(e);
-      fail("Lỗi kết nối Firebase. Kiểm tra lại cấu hình databaseURL.");
-      return;
-    }
+      return fail("Token không hợp lệ hoặc đã dùng. Lấy link mới trong Discord nhé.");
+    }catch(e){ console.error(e); return fail("Lỗi kết nối Firebase. Kiểm tra databaseURL."); }
   }
-
-  // b) Không có token nhưng đã đăng nhập trước đó
-  const saved = localStorage.getItem('tobi_me');
-  if(saved){
-    me = JSON.parse(saved);
-    enterApp();
-    return;
-  }
-
-  // c) Chưa đăng nhập
+  const saved=localStorage.getItem('tobi_me');
+  if(saved){ me=JSON.parse(saved); return enterApp(); }
   fail("Bạn chưa đăng nhập. Vào Discord gõ lệnh <b>tweb</b> để bot gửi link đăng nhập riêng cho bạn.");
 }
-
-function fail(msg){
-  $('loginSpinner').classList.add('hidden');
-  $('loginStatus').innerHTML = msg;
-}
-
-function logout(){
-  localStorage.removeItem('tobi_me');
-  location.href = location.pathname;
-}
+function fail(msg){ $('loginSpinner').classList.add('hidden'); $('loginStatus').innerHTML=msg; }
+function logout(){ localStorage.removeItem('tobi_me'); location.href=location.pathname; }
 
 function enterApp(){
   $('login').classList.add('hidden');
   $('app').classList.remove('hidden');
-  $('meName').textContent   = me.name;
-  $('meAvatar').src         = me.avatar;
-  $('compAvatar').src       = me.avatar;
+  $('meName').textContent=me.name;
+  $('meAvatar').src=me.avatar;
+  $('compAvatar').src=me.avatar;
+  // cập nhật avatar/tên mới nhất cho hồ sơ
+  db.ref('users/'+me.id).update({name:me.name,avatar:me.avatar,lastSeen:Date.now()});
   listenFeed();
+  listenStories();
   listenChat();
+  window.addEventListener('hashchange',renderRoute);
+  renderRoute();
 }
 
 /* ============================================================
-   4) UPLOAD ẢNH / VIDEO LÊN CLOUDINARY
+   4) ĐIỀU HƯỚNG (ROUTING)
    ============================================================ */
-function pickMedia(type){
-  const input = $('mediaInput');
-  input.accept = type === 'video' ? 'video/*' : 'image/*';
-  input.onchange = async ()=>{
-    const file = input.files[0];
-    if(!file) return;
-    await uploadToCloudinary(file, type);
-    input.value = "";
+function goProfile(id){ location.hash='#/u/'+id; }
+function renderRoute(){
+  const h=location.hash;
+  if(h.startsWith('#/u/')){
+    currentView='profile'; currentProfileId=h.slice(4);
+    $('viewHome').classList.add('hidden');
+    $('viewProfile').classList.remove('hidden');
+    $('navHome').classList.remove('active');
+    $('navMe').classList.toggle('active', currentProfileId===me.id);
+    renderProfile(currentProfileId);
+  }else{
+    currentView='home'; currentProfileId=null;
+    $('viewProfile').classList.add('hidden');
+    $('viewHome').classList.remove('hidden');
+    $('navHome').classList.add('active');
+    $('navMe').classList.remove('active');
+  }
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   5) UPLOAD CLOUDINARY (dùng chung cho post & story)
+   ============================================================ */
+function pickMedia(type,target){
+  const input=document.createElement('input');
+  input.type='file';
+  input.accept=type==='video'?'video/*':'image/*';
+  input.onchange=async()=>{
+    const file=input.files[0]; if(!file)return;
+    const res=await uploadToCloudinary(file,type);
+    if(res && target==='post'){ pendingMedia={url:res,type}; renderPreview(); }
+    if(res && target==='story'){ await createStory(res,type); }
   };
   input.click();
 }
-
-async function uploadToCloudinary(file, type){
+async function uploadToCloudinary(file,type){
   $('upbar').classList.remove('hidden');
-  $('upbar').textContent = "⏳ Đang tải lên… (file lớn có thể hơi lâu)";
-  $('btnPost').disabled = true;
+  $('upbar').textContent="⏳ Đang tải lên…";
+  $('btnPost').disabled=true;
   try{
-    const fd = new FormData();
-    fd.append('file', file);
-    fd.append('upload_preset', CLOUDINARY_PRESET);
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, {
-      method:'POST', body:fd
-    });
-    const data = await res.json();
-    if(!data.secure_url) throw new Error(data.error?.message || 'upload fail');
-    pendingMedia = { url:data.secure_url, type };
-    renderPreview();
-    $('upbar').textContent = "✅ Đã tải lên xong!";
+    const fd=new FormData();
+    fd.append('file',file); fd.append('upload_preset',CLOUDINARY_PRESET);
+    const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`,{method:'POST',body:fd});
+    const data=await res.json();
+    if(!data.secure_url)throw new Error(data.error?.message||'fail');
+    $('upbar').textContent="✅ Tải lên xong!";
+    return data.secure_url;
   }catch(e){
     console.error(e);
-    $('upbar').textContent = "❌ Tải lên thất bại. Kiểm tra Cloud name & upload preset (phải là Unsigned).";
-  }finally{
-    $('btnPost').disabled = false;
-  }
+    $('upbar').textContent="❌ Tải lên thất bại. Kiểm tra Cloud name & upload preset (Unsigned).";
+    return null;
+  }finally{ $('btnPost').disabled=false; }
 }
-
 function renderPreview(){
-  const box = $('postPreview');
-  if(!pendingMedia){ box.innerHTML = ""; return; }
-  const m = pendingMedia.type === 'video'
-    ? `<video src="${pendingMedia.url}" controls></video>`
-    : `<img src="${pendingMedia.url}">`;
-  box.innerHTML = `<div class="preview">${m}<div class="rm" onclick="clearMedia()">✕</div></div>`;
+  const box=$('postPreview');
+  if(!pendingMedia){box.innerHTML="";return;}
+  const m=pendingMedia.type==='video'?`<video src="${pendingMedia.url}" controls></video>`:`<img src="${pendingMedia.url}">`;
+  box.innerHTML=`<div class="preview">${m}<div class="rm" onclick="clearMedia()">✕</div></div>`;
 }
-function clearMedia(){ pendingMedia = null; renderPreview(); $('upbar').classList.add('hidden'); }
+function clearMedia(){ pendingMedia=null; renderPreview(); $('upbar').classList.add('hidden'); }
 
 /* ============================================================
-   5) ĐĂNG BÀI / BẢNG TIN
+   6) BÀI VIẾT
    ============================================================ */
 async function submitPost(){
-  const text = $('postText').value.trim();
-  if(!text && !pendingMedia){ return; }
-  $('btnPost').disabled = true;
-  const post = {
-    authorId:me.id, authorName:me.name, authorAvatar:me.avatar,
-    text, mediaUrl:pendingMedia?.url||null, mediaType:pendingMedia?.type||null,
-    createdAt:Date.now(), likes:{}
-  };
-  await db.ref('posts').push(post);
-  $('postText').value = "";
-  clearMedia();
-  $('upbar').classList.add('hidden');
-  $('btnPost').disabled = false;
+  const text=$('postText').value.trim();
+  if(!text && !pendingMedia)return;
+  $('btnPost').disabled=true;
+  await db.ref('posts').push({
+    authorId:me.id,authorName:me.name,authorAvatar:me.avatar,
+    text,mediaUrl:pendingMedia?.url||null,mediaType:pendingMedia?.type||null,
+    createdAt:Date.now(),likes:{}
+  });
+  $('postText').value=""; clearMedia(); $('upbar').classList.add('hidden'); $('btnPost').disabled=false;
 }
-
 function listenFeed(){
-  db.ref('posts').limitToLast(50).on('value', snap=>{
-    const arr = [];
-    snap.forEach(c=>arr.push({ id:c.key, ...c.val() }));
-    arr.reverse(); // mới nhất lên đầu
-    renderFeed(arr);
+  db.ref('posts').limitToLast(200).on('value',snap=>{
+    allPosts=[]; snap.forEach(c=>allPosts.push({id:c.key,...c.val()})); allPosts.reverse();
+    renderFeed($('feed'),allPosts.slice(0,80));
+    if(currentView==='profile')renderProfile(currentProfileId);
   });
 }
-
-function renderFeed(posts){
-  const feed = $('feed');
-  if(!posts.length){ feed.innerHTML = `<div class="empty">Chưa có bài viết nào. Đăng bài đầu tiên đi! 🎉</div>`; return; }
-  feed.innerHTML = posts.map(p=>{
-    const liked   = p.likes && p.likes[me.id];
-    const likeCnt = p.likes ? Object.keys(p.likes).length : 0;
-    let media = "";
-    if(p.mediaUrl){
-      media = p.mediaType === 'video'
-        ? `<div class="post-media"><video src="${esc(p.mediaUrl)}" controls></video></div>`
-        : `<div class="post-media"><img src="${esc(p.mediaUrl)}"></div>`;
-    }
-    return `
-    <div class="post" data-id="${p.id}">
-      <div class="post-head">
-        <img src="${esc(p.authorAvatar)}">
-        <div>
-          <div class="nm">${esc(p.authorName)}</div>
-          <div class="tm">${timeAgo(p.createdAt)}</div>
-        </div>
+function postHTML(p){
+  const liked=p.likes&&p.likes[me.id];
+  const likeCnt=p.likes?Object.keys(p.likes).length:0;
+  let media="";
+  if(p.mediaUrl){
+    media=p.mediaType==='video'
+      ?`<div class="post-media"><video src="${esc(p.mediaUrl)}" controls></video></div>`
+      :`<div class="post-media"><img src="${esc(p.mediaUrl)}"></div>`;
+  }
+  const delBtn=p.authorId===me.id?`<button class="act del" onclick="deletePost('${p.id}')">🗑️ Xoá</button>`:"";
+  return `
+  <div class="post" data-id="${p.id}">
+    <div class="post-head">
+      <img src="${esc(p.authorAvatar)}" onclick="goProfile('${p.authorId}')">
+      <div>
+        <div class="nm" onclick="goProfile('${p.authorId}')">${esc(p.authorName)}</div>
+        <div class="tm">${timeAgo(p.createdAt)}</div>
       </div>
-      ${p.text ? `<div class="post-text">${esc(p.text)}</div>` : ""}
-      ${media}
-      <div class="post-actions">
-        <button class="act ${liked?'liked':''}" onclick="toggleLike('${p.id}')">
-          ${liked?'❤️':'🤍'} ${likeCnt||""}
-        </button>
-        <button class="act" onclick="focusComment('${p.id}')">💬 Bình luận</button>
-      </div>
-      <div class="comments" id="cmt-${p.id}"></div>
-      <div class="cmt-form">
-        <img src="${esc(me.avatar)}">
-        <input id="cin-${p.id}" placeholder="Viết bình luận…" onkeydown="if(event.key==='Enter')sendComment('${p.id}')">
-      </div>
-    </div>`;
-  }).join("");
+    </div>
+    ${p.text?`<div class="post-text">${esc(p.text)}</div>`:""}
+    ${media}
+    <div class="post-actions">
+      <button class="act ${liked?'liked':''}" onclick="toggleLike('${p.id}')">${liked?'❤️':'🤍'} ${likeCnt||""}</button>
+      <button class="act" onclick="focusComment('${p.id}')">💬 Bình luận</button>
+      ${delBtn}
+    </div>
+    <div class="comments" id="cmt-${p.id}"></div>
+    <div class="cmt-form">
+      <img src="${esc(me.avatar)}">
+      <input id="cin-${p.id}" placeholder="Viết bình luận…" onkeydown="if(event.key==='Enter')sendComment('${p.id}')">
+    </div>
+  </div>`;
+}
+function renderFeed(container,posts){
+  if(!posts.length){ container.innerHTML=`<div class="empty">Chưa có bài viết nào. Đăng bài đầu tiên đi! 🎉</div>`; return; }
+  container.innerHTML=posts.map(postHTML).join("");
   posts.forEach(p=>listenComments(p.id));
 }
-
-function toggleLike(postId){
-  const ref = db.ref(`posts/${postId}/likes/${me.id}`);
-  ref.get().then(s=> s.exists() ? ref.remove() : ref.set(true));
+function toggleLike(id){
+  const ref=db.ref(`posts/${id}/likes/${me.id}`);
+  ref.get().then(s=>s.exists()?ref.remove():ref.set(true));
+}
+function deletePost(id){
+  if(!confirm("Xoá bài viết này?"))return;
+  db.ref('posts/'+id).remove();
+  db.ref('comments/'+id).remove();
 }
 
 /* ---------- BÌNH LUẬN ---------- */
 function focusComment(id){ $(`cin-${id}`)?.focus(); }
 function sendComment(postId){
-  const inp = $(`cin-${postId}`);
-  const text = inp.value.trim();
-  if(!text) return;
-  db.ref(`comments/${postId}`).push({
-    authorId:me.id, authorName:me.name, authorAvatar:me.avatar, text, createdAt:Date.now()
-  });
-  inp.value = "";
+  const inp=$(`cin-${postId}`); const text=inp.value.trim(); if(!text)return;
+  db.ref(`comments/${postId}`).push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text,createdAt:Date.now()});
+  inp.value="";
 }
 function listenComments(postId){
-  db.ref(`comments/${postId}`).limitToLast(30).on('value', snap=>{
-    const box = $(`cmt-${postId}`);
-    if(!box) return;
-    const arr = [];
-    snap.forEach(c=>arr.push(c.val()));
-    box.innerHTML = arr.map(c=>`
+  db.ref(`comments/${postId}`).limitToLast(30).on('value',snap=>{
+    const box=$(`cmt-${postId}`); if(!box)return;
+    const arr=[]; snap.forEach(c=>arr.push(c.val()));
+    box.innerHTML=arr.map(c=>`
       <div class="cmt">
-        <img src="${esc(c.authorAvatar)}">
-        <div class="bub"><div class="cn">${esc(c.authorName)}</div>${esc(c.text)}</div>
+        <img src="${esc(c.authorAvatar)}" onclick="goProfile('${c.authorId}')">
+        <div class="bub"><div class="cn" onclick="goProfile('${c.authorId}')">${esc(c.authorName)}</div>${esc(c.text)}</div>
       </div>`).join("");
   });
 }
 
 /* ============================================================
-   6) CHAT REALTIME
+   7) STORY (hết hạn 24h)
+   ============================================================ */
+async function createStory(url,type){
+  await db.ref('stories').push({
+    authorId:me.id,authorName:me.name,authorAvatar:me.avatar,
+    mediaUrl:url,mediaType:type,createdAt:Date.now()
+  });
+  $('upbar').classList.add('hidden');
+}
+function listenStories(){
+  db.ref('stories').limitToLast(200).on('value',snap=>{
+    const now=Date.now(); allStories=[];
+    snap.forEach(c=>{
+      const v=c.val();
+      if(now-v.createdAt>STORY_TTL){ db.ref('stories/'+c.key).remove().catch(()=>{}); } // dọn story hết hạn
+      else allStories.push({id:c.key,...v});
+    });
+    renderStories();
+  });
+}
+function renderStories(){
+  const bar=$('storiesBar');
+  // gom theo người, mỗi người 1 vòng tròn
+  const byUser={};
+  for(const s of allStories){ (byUser[s.authorId]=byUser[s.authorId]||[]).push(s); }
+  let html=`<div class="story-item story-add" onclick="pickMedia('image','story')">
+      <div class="story-ring">+</div><div class="story-name">Tạo tin</div></div>`;
+  // mình lên đầu nếu có
+  const ids=Object.keys(byUser).sort((a,b)=> a===me.id?-1:b===me.id?1:0);
+  for(const uid of ids){
+    const list=byUser[uid]; const u=list[list.length-1];
+    html+=`<div class="story-item" onclick="openStory('${uid}')">
+      <div class="story-ring"><img src="${esc(u.authorAvatar)}"></div>
+      <div class="story-name">${uid===me.id?'Tin của bạn':esc(u.authorName)}</div></div>`;
+  }
+  bar.innerHTML=html;
+}
+
+/* ---------- STORY VIEWER ---------- */
+let svList=[],svIdx=0,svTimer=null;
+function openStory(uid){
+  svList=allStories.filter(s=>s.authorId===uid).sort((a,b)=>a.createdAt-b.createdAt);
+  if(!svList.length)return;
+  svIdx=0; $('storyViewer').classList.add('open'); showStory();
+}
+function showStory(){
+  clearTimeout(svTimer);
+  const s=svList[svIdx];
+  $('svTop').innerHTML=`<img src="${esc(s.authorAvatar)}"><div><div class="nm">${esc(s.authorName)}</div><div class="tm">${timeAgo(s.createdAt)}</div></div>`;
+  $('svText').textContent=s.text||"";
+  const dur=s.mediaType==='video'?0:5000;
+  $('svBars').innerHTML=svList.map((_,i)=>`<div class="sv-bar ${i<svIdx?'done':''} ${i===svIdx?'active':''}" style="--dur:${dur}ms"><div class="fill"></div></div>`).join("");
+  if(s.mediaType==='video'){
+    $('svMedia').innerHTML=`<video src="${esc(s.mediaUrl)}" autoplay playsinline></video>`;
+    const vid=$('svMedia').querySelector('video');
+    vid.onended=nextStory;
+  }else{
+    $('svMedia').innerHTML=`<img src="${esc(s.mediaUrl)}">`;
+    svTimer=setTimeout(nextStory,dur);
+  }
+}
+function nextStory(){ if(svIdx<svList.length-1){svIdx++;showStory();}else closeStory(); }
+function prevStory(){ if(svIdx>0){svIdx--;showStory();} }
+function closeStory(){ clearTimeout(svTimer); $('svMedia').innerHTML=""; $('storyViewer').classList.remove('open'); }
+
+/* ============================================================
+   8) TRANG CÁ NHÂN
+   ============================================================ */
+let bioEditing=false;
+async function renderProfile(uid){
+  let u={name:'Người dùng',avatar:'',bio:''};
+  try{ const s=await db.ref('users/'+uid).get(); if(s.exists())u={...u,...s.val()}; }catch{}
+  if(uid===me.id){ u.name=me.name; u.avatar=me.avatar; }
+  const mine=allPosts.filter(p=>p.authorId===uid);
+  const likesGot=mine.reduce((n,p)=>n+(p.likes?Object.keys(p.likes).length:0),0);
+
+  $('pAvatar').src=u.avatar||'';
+  $('pName').textContent=u.name;
+  $('pStats').textContent=`📝 ${mine.length} bài viết · ❤️ ${likesGot} lượt thích`;
+  const bioBox=$('pBio');
+  if(u.bio){ bioBox.innerHTML=esc(u.bio); }
+  else{ bioBox.innerHTML=`<span class="placeholder">${uid===me.id?'Chưa có giới thiệu — bấm "Sửa hồ sơ" để thêm.':'Người này chưa viết giới thiệu.'}</span>`; }
+
+  const editBtn=$('pEditBtn');
+  if(uid===me.id){ editBtn.classList.remove('hidden'); $('bioInput').value=u.bio||""; }
+  else{ editBtn.classList.add('hidden'); $('pBioEdit').classList.add('hidden'); bioEditing=false; }
+
+  renderFeed($('profileFeed'),mine);
+}
+function toggleBioEdit(){
+  bioEditing=!bioEditing;
+  $('pBioEdit').classList.toggle('hidden',!bioEditing);
+  $('pBio').classList.toggle('hidden',bioEditing);
+}
+async function saveBio(){
+  const bio=$('bioInput').value.trim().slice(0,300);
+  await db.ref('users/'+me.id).update({bio});
+  bioEditing=false; toggleBioEdit2(); renderProfile(me.id);
+}
+function toggleBioEdit2(){ $('pBioEdit').classList.add('hidden'); $('pBio').classList.remove('hidden'); }
+
+/* ============================================================
+   9) CHAT
    ============================================================ */
 function sendChat(){
-  const inp = $('chatInput');
-  const text = inp.value.trim();
-  if(!text) return;
-  db.ref('chat').push({
-    authorId:me.id, authorName:me.name, authorAvatar:me.avatar, text, createdAt:Date.now()
-  });
-  inp.value = "";
+  const inp=$('chatInput'); const text=inp.value.trim(); if(!text)return;
+  db.ref('chat').push({authorId:me.id,authorName:me.name,authorAvatar:me.avatar,text,createdAt:Date.now()});
+  inp.value="";
 }
 function listenChat(){
-  db.ref('chat').limitToLast(60).on('value', snap=>{
-    const arr = [];
-    snap.forEach(c=>arr.push(c.val()));
-    const body = $('chatBody');
-    body.innerHTML = arr.map(m=>{
-      const mine = m.authorId === me.id;
-      return `
-      <div class="msg ${mine?'mine':''}">
-        <img src="${esc(m.authorAvatar)}">
-        <div class="content">
-          <div class="who">${mine?'Bạn':esc(m.authorName)}</div>
-          <div class="bubble">${esc(m.text)}</div>
-        </div>
-      </div>`;
+  db.ref('chat').limitToLast(60).on('value',snap=>{
+    const arr=[]; snap.forEach(c=>arr.push(c.val()));
+    const body=$('chatBody');
+    body.innerHTML=arr.map(m=>{
+      const mine=m.authorId===me.id;
+      return `<div class="msg ${mine?'mine':''}">
+        <img src="${esc(m.authorAvatar)}" onclick="goProfile('${m.authorId}')">
+        <div class="content"><div class="who">${mine?'Bạn':esc(m.authorName)}</div>
+        <div class="bubble">${esc(m.text)}</div></div></div>`;
     }).join("");
-    body.scrollTop = body.scrollHeight;
+    body.scrollTop=body.scrollHeight;
   });
 }
 
-/* ---------- KHỞI ĐỘNG ---------- */
 boot();
 </script>
 </body>

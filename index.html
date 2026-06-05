@@ -151,7 +151,10 @@ a{color:inherit;text-decoration:none}
 .chat-foot{padding:12px 14px;border-top:1px solid var(--line);display:flex;gap:9px}
 .chat-foot input{flex:1;background:var(--card-2);border:1px solid var(--line);border-radius:13px;color:var(--txt);padding:11px 15px;font-size:14px;outline:none}
 .chat-foot input:focus{border-color:var(--accent)}
-.chat-foot button{width:46px;border-radius:13px;font-size:18px;background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#0d0f1a;font-weight:800}
+.chat-foot button#chatSend{width:46px;border-radius:13px;font-size:18px;background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#0d0f1a;font-weight:800}
+.chat-attach{width:40px;border-radius:12px;font-size:17px;background:var(--card-2);border:1px solid var(--line)}
+.chat-attach:hover{border-color:var(--accent-2)}
+.msg .bubble img,.msg .bubble video{max-width:200px;max-height:240px;border-radius:10px;display:block;margin-top:2px;cursor:pointer}
 
 .empty{padding:40px 20px;text-align:center;color:var(--txt-faint);font-size:14px}
 
@@ -291,6 +294,8 @@ a{color:inherit;text-decoration:none}
           <div class="card-head"><span class="dot"></span> Chat chung</div>
           <div class="chat-body" id="chatBody"></div>
           <div class="chat-foot">
+            <button id="chatImg" class="chat-attach" title="Gửi ảnh">🖼️</button>
+            <button id="chatVid" class="chat-attach" title="Gửi video">🎬</button>
             <input id="chatInput" placeholder="Nhắn gì đó…" autocomplete="off">
             <button id="chatSend">➤</button>
           </div>
@@ -344,6 +349,7 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
+<input type="file" id="mediaPicker" style="display:none">
 <div id="toast"></div>
 
 <script>
@@ -499,22 +505,24 @@ function renderRoute(){
 /* ============================================================
    5) UPLOAD CLOUDINARY (dùng chung cho post & story)
    ============================================================ */
+function cloudinaryReady(){
+  return !(CLOUDINARY_CLOUD.startsWith('ĐIỀN') || CLOUDINARY_PRESET.startsWith('ĐIỀN'));
+}
 function pickMedia(type,target){
-  const input=document.createElement('input');
-  input.type='file';
+  // Kiểm tra ngay từ đầu — đỡ mở kho ảnh rồi mới báo lỗi (nhất là trên điện thoại)
+  if(!cloudinaryReady()){ toast('⚠️ Chưa cấu hình Cloudinary nên không up ảnh/video được!',4000); return; }
+  const input=$('mediaPicker');           // ô chọn file cố định (mở kho ảnh ổn định trên mobile)
   input.accept=type==='video'?'video/*':'image/*';
-  // QUAN TRỌNG: phải gắn vào trang thì mobile (iPhone/Android) mới fire onchange
-  input.style.position='fixed'; input.style.left='-9999px';
-  document.body.appendChild(input);
+  input.value='';                          // reset để chọn lại cùng 1 file vẫn nhận
   input.onchange=async()=>{
-    const file=input.files[0];
-    input.remove();
+    const file=input.files&&input.files[0];
     if(!file)return;
     const res=await uploadToCloudinary(file,type);
     if(res && target==='post'){ pendingMedia={url:res,type}; renderPreview(); }
     if(res && target==='story'){ await createStory(res,type); toast('✅ Đã đăng tin!'); }
     if(res && target==='avatar'){ await saveAvatar(res); toast('✅ Đã đổi ảnh đại diện!'); }
     if(res && target==='cover'){ await saveCover(res); toast('✅ Đã đổi ảnh bìa!'); }
+    if(res && target==='chat'){ sendChatMedia(res,type); }
   };
   input.click();
 }
@@ -778,7 +786,19 @@ function sendChat(){
     toast('❌ Bị từ chối: '+(e.message||e.code||'lỗi không rõ'),5000);
   });
 }
-// Gắn nút gửi + phím Enter (gọi 1 lần trong enterApp)
+// Gửi ảnh/video vào chat
+function sendChatMedia(url,type){
+  db.ref('chat').push({
+    authorId:me.id||'?',
+    authorName:me.name||'?',
+    authorAvatar:me.avatar||'',
+    text:'',
+    mediaUrl:url,
+    mediaType:type,
+    createdAt:Date.now()
+  }).catch(e=>{ console.error(e); toast('❌ Bị từ chối: '+(e.message||e.code),5000); });
+}
+// Gắn nút gửi + phím Enter + nút ảnh/video (gọi 1 lần trong enterApp)
 function bindChat(){
   const inp=$('chatInput'), btn=$('chatSend');
   if(!inp||!btn)return;
@@ -786,6 +806,8 @@ function bindChat(){
   inp.addEventListener('keydown',e=>{
     if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); sendChat(); }
   });
+  $('chatImg')?.addEventListener('click',()=>pickMedia('image','chat'));
+  $('chatVid')?.addEventListener('click',()=>pickMedia('video','chat'));
 }
 function listenChat(){
   const body=$('chatBody'); if(body)body.innerHTML="";
@@ -802,11 +824,21 @@ function appendChatMsg(key,m){
   const div=document.createElement('div');
   div.id='m-'+key;
   div.className='msg'+(mine?' mine':'');
+  let inner='';
+  if(m.mediaUrl){
+    inner += m.mediaType==='video'
+      ? `<video src="${esc(m.mediaUrl)}" controls></video>`
+      : `<img class="cimg" src="${esc(m.mediaUrl)}">`;
+  }
+  if(m.text) inner += esc(m.text);
   div.innerHTML=`<img src="${esc(avatarOf(m.authorId,m.authorAvatar))}">
     <div class="content"><div class="who">${mine?'Bạn':esc(nameOf(m.authorId,m.authorName))}</div>
-    <div class="bubble">${esc(m.text)}</div></div>`;
-  const img=div.querySelector('img');
-  if(img) img.onclick=()=>goProfile(m.authorId);
+    <div class="bubble">${inner}</div></div>`;
+  const av=div.querySelector('img'); // ảnh đại diện (img đầu tiên)
+  if(av) av.onclick=()=>goProfile(m.authorId);
+  // mở ảnh chat lớn khi bấm
+  const cimg=div.querySelector('.cimg');
+  if(cimg) cimg.onclick=()=>window.open(m.mediaUrl,'_blank');
   body.appendChild(div);
   body.scrollTop=body.scrollHeight;
 }

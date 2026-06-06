@@ -317,7 +317,7 @@ const STORY_TTL = 24 * 60 * 60 * 1000;
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-console.log('%c TobiSocial build 2026-06-06c ','background:#fe2c55;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+console.log('%c TobiSocial build 2026-06-06d ','background:#fe2c55;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
 
 let me=null, allPosts=[], allStories=[], pendingMedia=null;
 let currentView='home', currentProfileId=null, userCache={}, commentCounts={};
@@ -327,7 +327,12 @@ const esc=(s)=>String(s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':
 const timeAgo=(t)=>{const s=Math.floor((Date.now()-t)/1000);if(s<60)return"vừa xong";if(s<3600)return Math.floor(s/60)+" phút";if(s<86400)return Math.floor(s/3600)+" giờ";return new Date(t).toLocaleDateString('vi-VN');};
 const avatarOf=(id,fb)=>(userCache[id]&&userCache[id].avatar)||fb||'';
 const nameOf=(id,fb)=>(userCache[id]&&userCache[id].name)||fb||'Người dùng';
-const vthumb=(u)=>u?u.replace(/\.(mp4|mov|webm|avi|mkv|m4v)$/i,'.jpg'):'';
+const vthumb=(u)=>{
+  if(!u)return '';
+  if(/\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(u)) return u.replace(/\.(mp4|mov|webm|avi|mkv|m4v)$/i,'.jpg');
+  if(u.includes('/video/upload/')) return u+'.jpg';
+  return u;
+};
 let _tt=null;
 function toast(msg,ms=2200){const t=$('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),ms);}
 
@@ -519,7 +524,7 @@ function buildCard(p){
   const card=document.createElement('div');
   card.className='tik';card.id='tik-'+p.id;card.dataset.pid=p.id;
   let media;
-  if(p.mediaUrl&&p.mediaType==='video') media=`<video class="tik-media" src="${esc(p.mediaUrl)}" loop muted playsinline webkit-playsinline></video><div class="tik-mute" data-mute>🔇</div>`;
+  if(p.mediaUrl&&p.mediaType==='video') media=`<video class="tik-media" src="${esc(p.mediaUrl)}" poster="${esc(vthumb(p.mediaUrl))}" preload="auto" loop muted playsinline webkit-playsinline></video><div class="tik-mute" data-mute>🔇</div>`;
   else if(p.mediaUrl) media=`<img class="tik-media cover" src="${esc(p.mediaUrl)}">`;
   else media=`<div class="tik-textbg"><div class="tik-bigtext">${esc(p.text)}</div></div>`;
   const own=p.authorId===me.id;

@@ -309,7 +309,7 @@ const STORY_TTL = 24 * 60 * 60 * 1000;
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-console.log('%c TobiSocial build 2026-06-06i (Facebook-style) ','background:#1877f2;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+console.log('%c TobiSocial build 2026-06-06j (Facebook-style) ','background:#1877f2;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
 
 let me=null, allPosts=[], allStories=[], pendingMedia=null;
 let currentView='home', currentProfileId=null, userCache={}, commentCounts={};
@@ -338,7 +338,7 @@ async function boot(){
       if(snap.exists()){
         const d=snap.val();
         if(d.createdAt && Date.now()-d.createdAt>10*60*1000) return fail("Link đã hết hạn. Gõ lại lệnh trong Discord nhé.");
-        me={id:d.discordId,name:d.username,avatar:d.avatar,discordAvatar:d.avatar,discordName:d.username};
+        me={id:String(d.discordId),name:d.username,avatar:d.avatar,discordAvatar:d.avatar,discordName:d.username};
         localStorage.setItem('tobi_me',JSON.stringify(me));
         history.replaceState({},"",location.pathname);
         return enterApp();
@@ -347,7 +347,7 @@ async function boot(){
     }catch(e){console.error(e);return fail("Lỗi kết nối Firebase.");}
   }
   const saved=localStorage.getItem('tobi_me');
-  if(saved){me=JSON.parse(saved);return enterApp();}
+  if(saved){me=JSON.parse(saved);me.id=String(me.id);return enterApp();}
   fail("Bạn chưa đăng nhập. Vào Discord gõ <b>tweb</b> để lấy link đăng nhập.");
 }
 function fail(m){$('loginSpinner').classList.add('hidden');$('loginStatus').innerHTML=m;}

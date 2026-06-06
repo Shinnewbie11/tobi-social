@@ -57,7 +57,7 @@ a{color:inherit;text-decoration:none}
 /* ---------- FEED (TikTok) ---------- */
 #feed{position:absolute;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch}
 #feed::-webkit-scrollbar{display:none}
-.tik{position:relative;height:100vh;height:100dvh;width:100%;scroll-snap-align:start;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+.tik{position:relative;height:100%;width:100%;scroll-snap-align:start;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
 .tik-media{width:100%;height:100%;object-fit:contain;background:#000}
 .tik-media.cover{object-fit:cover}
 .tik-textbg{width:100%;height:100%;display:grid;place-items:center;padding:50px 26px;background:radial-gradient(120% 90% at 50% 0%,#241a2e,#0a0a0c)}
@@ -317,7 +317,7 @@ const STORY_TTL = 24 * 60 * 60 * 1000;
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-console.log('%c TobiSocial build 2026-06-06b ','background:#fe2c55;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+console.log('%c TobiSocial build 2026-06-06c ','background:#fe2c55;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
 
 let me=null, allPosts=[], allStories=[], pendingMedia=null;
 let currentView='home', currentProfileId=null, userCache={}, commentCounts={};
@@ -327,6 +327,7 @@ const esc=(s)=>String(s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':
 const timeAgo=(t)=>{const s=Math.floor((Date.now()-t)/1000);if(s<60)return"vừa xong";if(s<3600)return Math.floor(s/60)+" phút";if(s<86400)return Math.floor(s/3600)+" giờ";return new Date(t).toLocaleDateString('vi-VN');};
 const avatarOf=(id,fb)=>(userCache[id]&&userCache[id].avatar)||fb||'';
 const nameOf=(id,fb)=>(userCache[id]&&userCache[id].name)||fb||'Người dùng';
+const vthumb=(u)=>u?u.replace(/\.(mp4|mov|webm|avi|mkv|m4v)$/i,'.jpg'):'';
 let _tt=null;
 function toast(msg,ms=2200){const t=$('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),ms);}
 
@@ -657,7 +658,7 @@ async function renderProfile(uid){
   $('pCoverBtn').classList.toggle('hidden',!mineP);
   if(mineP){$('bioInput').value=u.bio||"";$('nameInput').value=u.name||"";}else{$('pBioEdit').classList.add('hidden');$('pBio').classList.remove('hidden');bioEditing=false;}
   $('pGrid').innerHTML=mine.length?mine.map(p=>{
-    const t=p.mediaUrl&&p.mediaType!=='video'?`<img src="${esc(p.mediaUrl)}">`:p.mediaType==='video'?`<video src="${esc(p.mediaUrl)}" muted></video><div class="g-badge">🎬</div>`:`<div class="g-text">${esc((p.text||'').slice(0,80))}</div>`;
+    const t=p.mediaUrl&&p.mediaType!=='video'?`<img src="${esc(p.mediaUrl)}">`:p.mediaType==='video'?`<img src="${esc(vthumb(p.mediaUrl))}"><div class="g-badge">▶️</div>`:`<div class="g-text">${esc((p.text||'').slice(0,80))}</div>`;
     return `<div class="g-item" onclick="jumpToPost('${p.id}')">${t}</div>`;
   }).join(''):'<div class="empty" style="grid-column:1/-1">Chưa có bài viết nào.</div>';
 }

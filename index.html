@@ -54,30 +54,22 @@ a{color:inherit;text-decoration:none}
 .story-add .story-ring{background:rgba(255,255,255,.12);border:2px dashed rgba(255,255,255,.4);display:grid;place-items:center;font-size:22px;color:var(--cyan);padding:0}
 .story-name{font-size:10.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #000}
 
-/* ---------- FEED (TikTok) ---------- */
-#feed{position:absolute;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch}
+/* ---------- FEED (kiểu Facebook) ---------- */
+#feed{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 92px) 0 calc(env(safe-area-inset-bottom) + 76px);display:flex;flex-direction:column;gap:10px}
 #feed::-webkit-scrollbar{display:none}
-.tik{position:relative;height:100%;width:100%;scroll-snap-align:start;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
-.tik-media{width:100%;height:100%;object-fit:contain;background:#000}
-.tik-media.cover{object-fit:cover}
-.tik-textbg{width:100%;height:100%;display:grid;place-items:center;padding:50px 26px;background:radial-gradient(120% 90% at 50% 0%,#241a2e,#0a0a0c)}
-.tik-bigtext{font-family:"Bricolage Grotesque";font-weight:700;font-size:26px;line-height:1.35;text-align:center;white-space:pre-wrap;word-break:break-word;max-height:70vh;overflow:auto}
-.tik-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 26%,transparent 70%,rgba(0,0,0,.35) 100%)}
-.tik-mute{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:46px;opacity:0;transition:.2s;pointer-events:none;text-shadow:0 2px 12px #000}
-.tik-mute.show{opacity:.9}
-
-.tik-rail{position:absolute;right:10px;bottom:calc(env(safe-area-inset-bottom) + 96px);display:flex;flex-direction:column;align-items:center;gap:18px;z-index:5}
-.tik-av{width:48px;height:48px;border-radius:50%;border:2px solid #fff;object-fit:cover;background:#333}
-.tik-act{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
-.tik-act .ico{font-size:32px;line-height:1}
-.tik-act.del .ico{font-size:26px}
-.tik-act.snd .ico{font-size:26px}
-.tik-act.liked .ico{filter:drop-shadow(0 0 6px var(--red))}
-
-.tik-bottom{position:absolute;left:14px;right:80px;bottom:calc(env(safe-area-inset-bottom) + 86px);z-index:5;text-shadow:0 1px 5px rgba(0,0,0,.6)}
-.tik-name{font-weight:800;font-size:16px;margin-bottom:5px}
-.tik-cap{font-size:14px;color:#f0f0f3;white-space:pre-wrap;word-break:break-word;max-height:25vh;overflow:auto}
-.tik-time{font-size:11px;color:var(--txt-dim);margin-top:4px}
+.fbcard{background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 14px 6px}
+.fb-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fb-av{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#333;cursor:pointer}
+.fb-name{font-weight:800;font-size:15px;cursor:pointer}
+.fb-time{font-size:12px;color:var(--txt-faint)}
+.fb-del{margin-left:auto;font-size:20px;color:var(--txt-dim);padding:4px 8px}
+.fb-text{font-size:15.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;margin-bottom:10px}
+.fb-media{width:100%;max-height:75vh;object-fit:cover;border-radius:12px;background:#000;margin-bottom:8px}
+.fb-media.contain{object-fit:contain}
+.fb-actions{display:flex;gap:6px;border-top:1px solid var(--line);padding-top:4px}
+.fb-act{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;border-radius:9px;font-size:14px;font-weight:700;color:var(--txt-dim)}
+.fb-act:hover{background:var(--panel-2)}
+.fb-act.liked{color:var(--red)}
 
 /* ---------- VIEW: CHAT / PROFILE (cuộn thường) ---------- */
 .page{position:absolute;inset:0;bottom:0;overflow-y:auto;background:var(--bg);padding-bottom:84px}
@@ -317,7 +309,7 @@ const STORY_TTL = 24 * 60 * 60 * 1000;
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-console.log('%c TobiSocial build 2026-06-06f ','background:#fe2c55;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+console.log('%c TobiSocial build 2026-06-06g (Facebook-style) ','background:#1877f2;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
 
 let me=null, allPosts=[], allStories=[], pendingMedia=null;
 let currentView='home', currentProfileId=null, userCache={}, commentCounts={};
@@ -491,75 +483,49 @@ function listenFeed(){
   });
 }
 let feedObserver=null;
-function ensureObserver(){
-  if(feedObserver)return;
-  feedObserver=new IntersectionObserver((ents)=>{
-    ents.forEach(en=>{
-      const v=en.target.querySelector('video.tik-media');if(!v)return;
-      if(en.isIntersecting&&en.intersectionRatio>0.55)v.play().catch(()=>{});else v.pause();
-    });
-  },{threshold:[0,0.55,1]});
-}
+function ensureObserver(){}
 function renderFeed(){
   const wrap=$('feed');
   const dbg=$('dbg');
-  if(!allPosts.length){wrap.innerHTML='<div class="empty" style="height:100%;display:grid;place-items:center">Chưa có bài viết. Bấm ＋ để đăng bài đầu tiên!</div>';if(dbg)dbg.textContent='bài: 0';return;}
-  const vh=wrap.clientHeight||1;
-  const prevId=[...wrap.querySelectorAll('.tik')][Math.round(wrap.scrollTop/vh)]?.dataset.pid;
+  if(!allPosts.length){wrap.innerHTML='<div class="empty" style="padding:60px 20px;text-align:center">Chưa có bài viết. Bấm ＋ để đăng bài đầu tiên!</div>';if(dbg)dbg.textContent='bài: 0';return;}
+  const top=wrap.scrollTop;
   wrap.innerHTML='';
   let ok=0;
   allPosts.forEach(p=>{
     try{ wrap.appendChild(buildCard(p)); ok++; }
     catch(e){ console.error('❌ Lỗi dựng bài',p.id,'mediaType=',p.mediaType,e); }
   });
-  // quay lại đúng bài đang xem (nếu có)
-  if(prevId){const i=allPosts.findIndex(p=>p.id===prevId);if(i>=0)wrap.scrollTop=i*vh;}
+  wrap.scrollTop=top; // giữ vị trí cuộn
   if(dbg)dbg.textContent='bài: '+allPosts.length+' · thẻ: '+ok;
 }
 function buildCard(p){
   const card=document.createElement('div');
-  card.className='tik';card.id='tik-'+p.id;card.dataset.pid=p.id;
-  let media;
-  if(p.mediaUrl&&p.mediaType==='video') media=`<video class="tik-media" src="${esc(p.mediaUrl)}" poster="${esc(vthumb(p.mediaUrl))}" preload="auto" loop muted playsinline webkit-playsinline></video><div class="tik-mute" data-mute>🔇</div>`;
-  else if(p.mediaUrl) media=`<img class="tik-media cover" src="${esc(p.mediaUrl)}">`;
-  else media=`<div class="tik-textbg"><div class="tik-bigtext">${esc(p.text)}</div></div>`;
+  card.className='fbcard';card.id='tik-'+p.id;card.dataset.pid=p.id;
+  let media='';
+  if(p.mediaUrl&&p.mediaType==='video') media=`<video class="fb-media contain" src="${esc(p.mediaUrl)}" poster="${esc(vthumb(p.mediaUrl))}" preload="metadata" controls playsinline webkit-playsinline></video>`;
+  else if(p.mediaUrl) media=`<img class="fb-media" src="${esc(p.mediaUrl)}">`;
   const own=p.authorId===me.id;
-  const isVid=p.mediaUrl&&p.mediaType==='video';
   card.innerHTML=`
-    ${media}
-    <div class="tik-shade"></div>
-    <div class="tik-rail">
-      <img class="tik-av" data-av src="${esc(avatarOf(p.authorId,p.authorAvatar))}">
-      <button class="tik-act like" data-like><span class="ico">🤍</span><span class="cnt"></span></button>
-      <button class="tik-act cmt" data-cmt><span class="ico">💬</span><span class="cnt"></span></button>
-      ${own?'<button class="tik-act del" data-del><span class="ico">🗑️</span>Xoá</button>':''}
-      ${isVid?'<button class="tik-act snd" data-snd><span class="ico">🔇</span>Âm thanh</button>':''}
+    <div class="fb-head">
+      <img class="fb-av" data-av src="${esc(avatarOf(p.authorId,p.authorAvatar))}">
+      <div>
+        <div class="fb-name" data-name>${esc(nameOf(p.authorId,p.authorName))}</div>
+        <div class="fb-time">${timeAgo(p.createdAt)}</div>
+      </div>
+      ${own?'<button class="fb-del" data-del>🗑️</button>':''}
     </div>
-    <div class="tik-bottom">
-      <div class="tik-name" data-name>@${esc(nameOf(p.authorId,p.authorName))}</div>
-      ${p.mediaUrl&&p.text?`<div class="tik-cap">${esc(p.text)}</div>`:''}
-      <div class="tik-time">${timeAgo(p.createdAt)}</div>
+    ${p.text?`<div class="fb-text">${esc(p.text)}</div>`:''}
+    ${media}
+    <div class="fb-actions">
+      <button class="fb-act like" data-like><span class="ico">🤍</span><span>Thích</span><span class="cnt"></span></button>
+      <button class="fb-act cmt" data-cmt><span>💬</span><span>Bình luận</span><span class="cnt"></span></button>
     </div>`;
   card.querySelector('[data-av]').onclick=()=>goProfile(p.authorId);
   card.querySelector('[data-name]').onclick=()=>goProfile(p.authorId);
   card.querySelector('[data-like]').onclick=()=>toggleLike(p.id);
   card.querySelector('[data-cmt]').onclick=()=>openComments(p.id);
   if(own)card.querySelector('[data-del]').onclick=()=>deletePost(p.id);
-  const vid=card.querySelector('video.tik-media');
-  if(vid){
-    const mi=card.querySelector('[data-mute]');
-    const sndBtn=card.querySelector('[data-snd]');
-    const setMuted=(m)=>{
-      vid.muted=m;
-      if(sndBtn)sndBtn.querySelector('.ico').textContent=m?'🔇':'🔊';
-      if(mi){mi.textContent=m?'🔇':'🔊';mi.classList.add('show');setTimeout(()=>mi.classList.remove('show'),700);}
-      if(vid.paused)vid.play().catch(()=>{});
-    };
-    card.querySelector('.tik-shade').onclick=()=>setMuted(!vid.muted);
-    if(sndBtn)sndBtn.onclick=(e)=>{e.stopPropagation();setMuted(!vid.muted);};
-  }
   updateCard(card,p);
-  feedObserver&&feedObserver.observe(card);
   return card;
 }
 function updateCard(card,p){
@@ -570,7 +536,7 @@ function updateCard(card,p){
   likeBtn.querySelector('.ico').textContent=liked?'❤️':'🤍';
   likeBtn.querySelector('.cnt').textContent=likeCnt||'';
   card.querySelector('[data-cmt] .cnt').textContent=commentCounts[p.id]||'';
-  card.querySelector('[data-name]').textContent='@'+nameOf(p.authorId,p.authorName);
+  card.querySelector('[data-name]').textContent=nameOf(p.authorId,p.authorName);
 }
 function toggleLike(id){const r=db.ref(`posts/${id}/likes/${me.id}`);r.get().then(s=>s.exists()?r.remove():r.set(true));}
 function deletePost(id){if(!confirm("Xoá bài viết này?"))return;db.ref('posts/'+id).remove();db.ref('comments/'+id).remove();}
@@ -663,7 +629,7 @@ async function renderProfile(uid){
     return `<div class="g-item" onclick="jumpToPost('${p.id}')">${t}</div>`;
   }).join(''):'<div class="empty" style="grid-column:1/-1">Chưa có bài viết nào.</div>';
 }
-function jumpToPost(id){location.hash='#/';setTimeout(()=>{const c=document.getElementById('tik-'+id);if(c)c.scrollIntoView();},60);}
+function jumpToPost(id){location.hash='#/';setTimeout(()=>{const c=document.getElementById('tik-'+id);if(c)c.scrollIntoView({behavior:'smooth',block:'center'});},80);}
 function toggleBioEdit(){bioEditing=!bioEditing;$('pBioEdit').classList.toggle('hidden',!bioEditing);$('pBio').classList.toggle('hidden',bioEditing);}
 async function saveProfile(){
   const name=$('nameInput').value.trim().slice(0,30);

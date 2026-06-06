@@ -201,7 +201,7 @@ a{color:inherit;text-decoration:none}
 <div id="app" class="hidden">
 
   <!-- Top stories (feed) -->
-  <div id="topbar"><div id="dbg" style="font-size:11px;color:#25f4ee;padding:0 4px 4px;font-weight:700">bài: …</div><div class="stories" id="storiesBar"></div></div>
+  <div id="topbar"><div class="stories" id="storiesBar"></div></div>
 
   <!-- FEED -->
   <div id="feed"></div>
@@ -309,7 +309,7 @@ const STORY_TTL = 24 * 60 * 60 * 1000;
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-console.log('%c TobiSocial build 2026-06-06h (Facebook-style) ','background:#1877f2;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+console.log('%c TobiSocial build 2026-06-06i (Facebook-style) ','background:#1877f2;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
 
 let me=null, allPosts=[], allStories=[], pendingMedia=null;
 let currentView='home', currentProfileId=null, userCache={}, commentCounts={};
@@ -486,23 +486,14 @@ let feedObserver=null;
 function ensureObserver(){}
 function renderFeed(){
   const wrap=$('feed');
-  const dbg=$('dbg');
-  if(!allPosts.length){wrap.innerHTML='<div class="empty" style="padding:60px 20px;text-align:center">Chưa có bài viết. Bấm ＋ để đăng bài đầu tiên!</div>';if(dbg)dbg.textContent='bài: 0';return;}
+  if(!allPosts.length){wrap.innerHTML='<div class="empty" style="padding:60px 20px;text-align:center">Chưa có bài viết. Bấm ＋ để đăng bài đầu tiên!</div>';return;}
   const top=wrap.scrollTop;
   wrap.innerHTML='';
-  let ok=0;
   allPosts.forEach(p=>{
-    try{ wrap.appendChild(buildCard(p)); ok++; }
-    catch(e){ console.error('❌ Lỗi dựng bài',p.id,'mediaType=',p.mediaType,e); }
+    try{ wrap.appendChild(buildCard(p)); }
+    catch(e){ console.error('Lỗi dựng bài',p.id,p.mediaType,e); }
   });
-  // BẢNG CHẨN ĐOÁN (tạm) — hiện thẳng trên màn hình
-  const diag=document.createElement('div');
-  diag.style.cssText='background:#1c1c20;color:#25f4ee;font-size:12.5px;padding:12px 14px;line-height:1.7;border-bottom:2px solid #fe2c55';
-  diag.innerHTML='🔎 Firebase trả về <b>'+allPosts.length+'</b> bài · dựng được <b>'+ok+'</b> thẻ<br>'+
-    allPosts.map((p,i)=>`${i+1}. loại: <b>${p.mediaType||(p.mediaUrl?'ảnh':'chữ')}</b> — của: <b>${esc(nameOf(p.authorId,p.authorName))}</b>`).join('<br>');
-  wrap.prepend(diag);
   wrap.scrollTop=top; // giữ vị trí cuộn
-  if(dbg)dbg.textContent='bài: '+allPosts.length+' · thẻ: '+ok;
 }
 function buildCard(p){
   const card=document.createElement('div');

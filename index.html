@@ -309,7 +309,7 @@ const STORY_TTL = 24 * 60 * 60 * 1000;
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-console.log('%c TobiSocial build 2026-06-06g (Facebook-style) ','background:#1877f2;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+console.log('%c TobiSocial build 2026-06-06h (Facebook-style) ','background:#1877f2;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
 
 let me=null, allPosts=[], allStories=[], pendingMedia=null;
 let currentView='home', currentProfileId=null, userCache={}, commentCounts={};
@@ -495,6 +495,12 @@ function renderFeed(){
     try{ wrap.appendChild(buildCard(p)); ok++; }
     catch(e){ console.error('❌ Lỗi dựng bài',p.id,'mediaType=',p.mediaType,e); }
   });
+  // BẢNG CHẨN ĐOÁN (tạm) — hiện thẳng trên màn hình
+  const diag=document.createElement('div');
+  diag.style.cssText='background:#1c1c20;color:#25f4ee;font-size:12.5px;padding:12px 14px;line-height:1.7;border-bottom:2px solid #fe2c55';
+  diag.innerHTML='🔎 Firebase trả về <b>'+allPosts.length+'</b> bài · dựng được <b>'+ok+'</b> thẻ<br>'+
+    allPosts.map((p,i)=>`${i+1}. loại: <b>${p.mediaType||(p.mediaUrl?'ảnh':'chữ')}</b> — của: <b>${esc(nameOf(p.authorId,p.authorName))}</b>`).join('<br>');
+  wrap.prepend(diag);
   wrap.scrollTop=top; // giữ vị trí cuộn
   if(dbg)dbg.textContent='bài: '+allPosts.length+' · thẻ: '+ok;
 }

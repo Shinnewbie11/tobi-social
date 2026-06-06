@@ -86,8 +86,8 @@ a{color:inherit;text-decoration:none}
 .page-head .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
 
 /* CHAT */
-#chatView{display:flex;flex-direction:column;padding-bottom:calc(env(safe-area-inset-bottom) + 60px)}
-.chat-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
+#chatView{display:flex;flex-direction:column;overflow:hidden;padding-bottom:calc(env(safe-area-inset-bottom) + 60px)}
+.chat-body{flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
 .chat-body::-webkit-scrollbar{width:0}
 .msg{display:flex;gap:9px;max-width:86%}
 .msg img.av{width:32px;height:32px;border-radius:50%;flex-shrink:0;align-self:flex-end;object-fit:cover}
@@ -317,7 +317,7 @@ const STORY_TTL = 24 * 60 * 60 * 1000;
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-console.log('%c TobiSocial build 2026-06-06e ','background:#fe2c55;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
+console.log('%c TobiSocial build 2026-06-06f ','background:#fe2c55;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold');
 
 let me=null, allPosts=[], allStories=[], pendingMedia=null;
 let currentView='home', currentProfileId=null, userCache={}, commentCounts={};
@@ -502,25 +502,19 @@ function ensureObserver(){
 }
 function renderFeed(){
   const wrap=$('feed');
-  if(!allPosts.length){wrap.innerHTML='<div class="empty" style="height:100%;display:grid;place-items:center">Chưa có bài viết. Bấm ＋ để đăng bài đầu tiên!</div>';const d0=$('dbg');if(d0)d0.textContent='bài: 0';return;}
-  const ids=allPosts.map(p=>p.id), seen=new Set(ids);
+  const dbg=$('dbg');
+  if(!allPosts.length){wrap.innerHTML='<div class="empty" style="height:100%;display:grid;place-items:center">Chưa có bài viết. Bấm ＋ để đăng bài đầu tiên!</div>';if(dbg)dbg.textContent='bài: 0';return;}
   const vh=wrap.clientHeight||1;
-  const curIdx=Math.round(wrap.scrollTop/vh);
-  const curId=[...wrap.querySelectorAll('.tik')][curIdx]?.dataset.pid;
-  [...wrap.querySelectorAll('.tik')].forEach(c=>{if(!seen.has(c.dataset.pid))c.remove();});
+  const prevId=[...wrap.querySelectorAll('.tik')][Math.round(wrap.scrollTop/vh)]?.dataset.pid;
+  wrap.innerHTML='';
+  let ok=0;
   allPosts.forEach(p=>{
-    try{
-      let card=document.getElementById('tik-'+p.id);
-      if(!card){wrap.appendChild(buildCard(p));}
-      else updateCard(card,p);
-    }catch(e){ console.error('❌ Lỗi dựng bài',p.id,'mediaType=',p.mediaType,e); }
+    try{ wrap.appendChild(buildCard(p)); ok++; }
+    catch(e){ console.error('❌ Lỗi dựng bài',p.id,'mediaType=',p.mediaType,e); }
   });
-  const cur=[...wrap.querySelectorAll('.tik')].map(c=>c.dataset.pid);
-  if(cur.join(',')!==ids.join(',')){
-    ids.forEach(id=>{const c=document.getElementById('tik-'+id);if(c)wrap.appendChild(c);});
-    if(curIdx>0 && curId){const ni=ids.indexOf(curId);if(ni>=0)wrap.scrollTop=ni*vh;}
-  }
-  const d=$('dbg');if(d)d.textContent='bài: '+allPosts.length+' · thẻ: '+wrap.querySelectorAll('.tik').length;
+  // quay lại đúng bài đang xem (nếu có)
+  if(prevId){const i=allPosts.findIndex(p=>p.id===prevId);if(i>=0)wrap.scrollTop=i*vh;}
+  if(dbg)dbg.textContent='bài: '+allPosts.length+' · thẻ: '+ok;
 }
 function buildCard(p){
   const card=document.createElement('div');
